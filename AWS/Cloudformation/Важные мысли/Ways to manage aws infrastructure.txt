@@ -1,0 +1,23 @@
+Manual = AWS management console
+Pros: 
+1)Easy to get started
+Cons:
+1)Not reproducible
+2)Error prone
+3)Time consuming
+
+Scripted = using .sh scripts and aws cli
+Pros:
+1)No retry logic
+Cons:
+1)No updates
+2)No rolbacks
+3)Unclear finish times
+
+Declarative = Cloudformation and Terraform
+Pros: 
+1)Easy to automate
+2)Reproducible
+Cons:
+1)Not human readable
+2)Too many parameters
