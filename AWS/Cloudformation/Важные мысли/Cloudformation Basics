@@ -1,0 +1,98 @@
+# - comments
+Easiest example of cloudformation template:
+
+Resources: 
+  S3Bucket: # id of the resource
+    Type: AWS::S3::Bucket # types and properties
+
+Next example:
+
+Parameters: # for different use cases you need dynamic parameters and all the parameters will ask you for a value
+  BucketName: # id
+    Type: String # type is type
+    Description: 'A bucket name to set.' 
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+
+# in this example aws cloudformation may say that there is no difference between first and second and no changes will be performed it is ok because we have declared bucket name parameter but we are not using it
+
+Next example:
+
+Parameters:
+  BucketNameParameter:
+    Type: String
+    Description: 'A bucket name to set.'
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketNameParameter # Ref is intrinsic function and this function returns a value of resource or parameter
+
+also we can add join function and it will look like this
+
+Parameters:
+  BucketNameParameter:
+    Type: String
+    Description: 'A bucket name to set.'
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join [ '-', [
+          !Ref BucketNameParameter, 'dummy', 'suffix'
+        ] # join function joins bucketNameParameter, dummy and suffix and put - between them
+      ]
+
+next example:
+
+Parameters:
+  BucketNameParameter:
+    Type: String
+    Description: 'A bucket name to set.'
+  Environment:
+    Type: String
+    AllowedValues: # if you use allowed values you can choose what to use in cloudformation interface
+      - Dev
+      - Test
+      - Prod
+    Description: 'Select an environment.'
+
+Mappings: # this is basic mapping where key corresponds to a value also u can set multiple values
+  EnvironmentToBucketSuffix:
+    Dev:
+      Suffix: 'this-is-dev'
+    Test:
+      Suffix: 'use-only-for-testing'
+    Prod:
+      Suffix: 'be-careful-it-is-production'
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Join [ '-', [
+          !Ref BucketNameParameter, !FindInMap [ # this is function that accepts map, allowed values and key 
+              EnvironmentToBucketSuffix,
+              !Ref Environment,
+              Suffix
+          ]
+        ]
+      ]
+
+next example:
+
+Resources:
+  S3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: 'simple-workshop-bucket-101'
+
+Outputs: # this is outputs it will output everything that u specify here
+  BucketARN:
+    Description: 'The ARN of the bucket.'
+    Value: !GetAtt S3Bucket.Arn # this is intrinsic function that returns arn of S3Bucket resource
+
