@@ -21,3 +21,10 @@ Pros:
 Cons:
 1)Not human readable
 2)Too many parameters
+
+DOMs = document object models
+Pros:
+1)Real code
+2)Human readable
+3)Just a wrapper
+4)No structures
