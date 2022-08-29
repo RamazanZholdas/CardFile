@@ -172,11 +172,11 @@ Resources:
         ImageId: ami-05fa00d4c63e32376
         InstanceType: t2.micro
         InstanceInitiatedShutdownBehavior: terminate
-        SecurityGroups:
-        - !Ref InstanceSecGroup
         NetworkInterfaces:
         - DeviceIndex: 0
           AssociatePublicIpAddress: true
+          Groups:
+            - !Ref InstanceSecGroup
         UserData:
           Fn::Base64: !Sub |     # No more Fn::Join needed
             #!/bin/bash
