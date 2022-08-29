@@ -1,6 +1,15 @@
 Description:
   "Here is the template to describe 1st week"
 
+Parameters:
+  pDbName:
+    Type: String
+  pDbUser:
+    Type: String
+  pDbPass:
+    Type: String
+    Description: "It should be less than 8 characters"
+    NoEcho: true
 
 Resources:
   
@@ -118,7 +127,74 @@ Resources:
           ToPort: 22
           CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
-          FromPort: 0     
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0     
+      SecurityGroupEgress:
+        - IpProtocol: -1
+          CidrIp: 0.0.0.0/0
 
+  RDSSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupName: MySubnetGroup
+      DBSubnetGroupDescription: Subnet group for our database
+      SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
 
+  DBInstance:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot
+    UpdateReplacePolicy: Retain
+    Properties:
+      BackupRetentionPeriod: 7
+      DBName: !Ref pDbName
+      MasterUsername: !Ref pDbUser
+      MasterUserPassword: !Ref pDbPass
+      Engine: MySQL
+      EngineVersion: 8.0.28
+      DBInstanceClass: db.t2.micro
+      StorageType: gp2
+      PubliclyAccessible: false
+      AllocatedStorage: "20"
+      DBInstanceIdentifier: !Join ["-", [ "MyMySQLDbInstance", !Ref "AWS::Region" ]]
+      AvailabilityZone: !Select [ 0, !GetAZs ]
+      DBSubnetGroupName: !Ref RDSSubnetGroup
+      VPCSecurityGroups: 
+        - !Ref DatabaseSecGroup
 
+  MyLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: My-Launch-template-for-asg
+      LaunchTemplateData:
+        ImageId: ami-05fa00d4c63e32376
+        InstanceType: t2.micro
+        InstanceInitiatedShutdownBehavior: terminate
+        SecurityGroups:
+        - !Ref InstanceSecGroup
+        NetworkInterfaces:
+        - DeviceIndex: 0
+          AssociatePublicIpAddress: true
+        UserData:
+          Fn::Base64: !Sub |     # No more Fn::Join needed
+            #!/bin/bash
+            yum update -y
+            yum install -y httpd.x86_64
+            systemctl start httpd.service
+            systemctl enable httpd.service
+            echo “Hello World from $(hostname -f)” > /var/www/html/index.html
+
+  MyASG:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+      - !Ref PublicSubnet1
+      - !Ref PublicSubnet2
+      LaunchTemplate:
+        LaunchTemplateId: !Ref MyLaunchTemplate
+        Version: !GetAtt MyLaunchTemplate.LatestVersionNumber
+      MaxSize: '1'
+      MinSize: '1'
+      DesiredCapacity: '1'
