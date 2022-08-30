@@ -1,5 +1,7 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
 Description:
-  "Here is the template to describe 1st week"
+  "Here is the template to describe 1st week and 2nd week"
 
 Parameters:
   pDbName:
