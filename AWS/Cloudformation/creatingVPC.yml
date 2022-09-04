@@ -185,14 +185,12 @@ Resources:
           AssociatePublicIpAddress: true
           Groups:
             - !Ref InstanceSecGroup
-#        UserData:
-#          Fn::Base64: !Sub |     # No more Fn::Join needed
-#            #!/bin/bash
-#            yum update -y
-#            yum install -y httpd.x86_64
-#            systemctl start httpd.service
-#            systemctl enable httpd.service
-#            echo “Hello World from $(hostname -f)” > /var/www/html/index.html
+        UserData:
+          Fn::Base64: !Sub |     # No more Fn::Join needed
+            #!/bin/bash
+            yum update -y
+            yum install -y golang
+            yum install -y git
 
   MyASG:
     Type: AWS::AutoScaling::AutoScalingGroup
