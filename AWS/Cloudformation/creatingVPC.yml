@@ -15,6 +15,9 @@ Parameters:
   BucketName:
     Type: String
     Default: mysite.example.com
+  CPUPolicyTargetValue:
+    Type: String
+    Description: The target utilization for the CPU metric
   #HostedZoneName:
   #  Type: String
   #  Default: example.com
@@ -202,12 +205,21 @@ Resources:
       LaunchTemplate:
         LaunchTemplateId: !Ref MyLaunchTemplate
         Version: !GetAtt MyLaunchTemplate.LatestVersionNumber
-      MaxSize: '1'
+      MaxSize: '2'
       MinSize: '1'
       DesiredCapacity: '1'
       LoadBalancerNames:
         - !Ref LoadBalancer
-  
+
+  myCPUPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Properties:
+      AutoScalingGroupName: !Ref MyASG
+      PolicyType: TargetTrackingScaling
+      TargetTrackingConfiguration:
+        PredefinedMetricSpecification:
+          PredefinedMetricType: ASGAverageCPUUtilization
+        TargetValue: !Ref CPUPolicyTargetValue
 
   ELBWebServerSecurityGroup:
     Type: AWS::EC2::SecurityGroup
