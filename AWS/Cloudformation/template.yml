@@ -324,6 +324,7 @@ Resources:
           AcmCertificateArn: !Ref ACMCertificate
           SslSupportMethod: sni-only
           MinimumProtocolVersion: TLSv1.2_2021
+        DefaultRootObject: 'index.html'
         Aliases:
           - alisherfreedomaintry.tk
         Origins:
