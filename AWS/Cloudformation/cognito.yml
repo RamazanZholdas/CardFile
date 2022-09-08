@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Description:
+  "Experimenting with cognito"
+
+Resources:
+
+  UserPool:
+    Type: 'AWS::Cognito::UserPool'
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+        - Name: verified_email
+          Priority: 1
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      AliasAttributes:
+      - preferred_username
+      AutoVerifiedAttributes:
+      - email
+      EnabledMfas:
+      - SOFTWARE_TOKEN_MFA
+      MfaConfiguration: OPTIONAL
+      UserPoolName: !Ref 'AWS::StackName'
+  UserPoolDomain:
+    Type: 'AWS::Cognito::UserPoolDomain'
+    Properties:
+      Domain: 'cloudonaut-io'
+      UserPoolId: !Ref UserPool
+  ClientWebsite:
+    Type: 'AWS::Cognito::UserPoolClient'
+    Properties:
+      AccessTokenValidity: 1
+      AllowedOAuthFlows:
+      - code
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthScopes:
+      - phone
+      - email
+      - openid
+      - profile
+      CallbackURLs:
+      - 'https://cloudonaut.io/api/cognito/login/'
+      ClientName: website
+      DefaultRedirectURI: 'https://cloudonaut.io/api/cognito/login/'
+      ExplicitAuthFlows:
+      - ALLOW_USER_SRP_AUTH
+      - ALLOW_REFRESH_TOKEN_AUTH # always on
+      GenerateSecret: true
+      IdTokenValidity: 1
+      LogoutURLs:
+      - 'https://cloudonaut.io/api/cognito/logout/'
+      PreventUserExistenceErrors: ENABLED
+      RefreshTokenValidity: 30
+      SupportedIdentityProviders:
+      - COGNITO
+      TokenValidityUnits:
+        AccessToken: days
+        IdToken: days
+        RefreshToken: days
+      UserPoolId: !Ref UserPool
+Outputs:
+  CognitoUserPoolId:
+    Value: !Ref UserPool
+  CognitoClientId:
+    Value: !Ref ClientWebsite
+  CognitoDomainName:
+    Value: !Ref UserPoolDomain

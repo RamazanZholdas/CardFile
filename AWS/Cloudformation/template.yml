@@ -364,3 +364,75 @@ Resources:
           AliasTarget:
             HostedZoneId: Z2FDTNDATAQYW2
             DNSName: !GetAtt CFDistribution.DomainName
+
+  UserPool:
+    Type: 'AWS::Cognito::UserPool'
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    DependsOn:
+      - CFDistribution
+      - DNS
+      - ACMCertificate
+      - Route53HZ
+    Properties:
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+        - Name: verified_email
+          Priority: 1
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      AliasAttributes:
+      - preferred_username
+      AutoVerifiedAttributes:
+      - email
+      EnabledMfas:
+      - SOFTWARE_TOKEN_MFA
+      MfaConfiguration: OPTIONAL
+      UserPoolName: !Ref 'AWS::StackName'
+
+  UserPoolDomain:
+    Type: 'AWS::Cognito::UserPoolDomain'
+    Properties:
+      Domain: 'alisherfreedomaintry'
+      UserPoolId: !Ref UserPool
+      
+  ClientWebsite:
+    Type: 'AWS::Cognito::UserPoolClient'
+    Properties:
+      AccessTokenValidity: 1
+      AllowedOAuthFlows:
+      - code
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthScopes:
+      - phone
+      - email
+      - openid
+      - profile
+      CallbackURLs:
+      - 'https://alisherfreedomaintry.tk'
+      ClientName: website
+      DefaultRedirectURI: 'https://alisherfreedomaintry.tk'
+      ExplicitAuthFlows:
+      - ALLOW_USER_SRP_AUTH
+      - ALLOW_REFRESH_TOKEN_AUTH # always on
+      GenerateSecret: true
+      IdTokenValidity: 1
+#      LogoutURLs:
+#      - 'https://idk.tk'
+      PreventUserExistenceErrors: ENABLED
+      RefreshTokenValidity: 30
+      SupportedIdentityProviders:
+      - COGNITO
+      TokenValidityUnits:
+        AccessToken: days
+        IdToken: days
+        RefreshToken: days
+      UserPoolId: !Ref UserPool
+
+Outputs:
+  CognitoUserPoolId:
+    Value: !Ref UserPool
+  CognitoClientId:
+    Value: !Ref ClientWebsite
+  CognitoDomainName:
+    Value: !Ref UserPoolDomain

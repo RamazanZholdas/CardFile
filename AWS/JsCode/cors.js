@@ -1,4 +1,7 @@
 exports.handler = async (event, context) => {
+    var response  = event.response;
+    var headers  = response.headers;
+
     try {
         response = {
             'statusCode' : 200,
