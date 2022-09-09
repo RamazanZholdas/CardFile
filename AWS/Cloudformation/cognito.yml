@@ -9,6 +9,11 @@ Resources:
     Type: 'AWS::Cognito::UserPool'
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
+#    DependsOn:
+#      - CFDistribution
+#      - DNS
+#      - ACMCertificate
+#      - Route53HZ
     Properties:
       AccountRecoverySetting:
         RecoveryMechanisms:
@@ -24,11 +29,13 @@ Resources:
       - SOFTWARE_TOKEN_MFA
       MfaConfiguration: OPTIONAL
       UserPoolName: !Ref 'AWS::StackName'
+
   UserPoolDomain:
     Type: 'AWS::Cognito::UserPoolDomain'
     Properties:
-      Domain: 'cloudonaut-io'
+      Domain: 'alisherfreedomaintry'
       UserPoolId: !Ref UserPool
+      
   ClientWebsite:
     Type: 'AWS::Cognito::UserPoolClient'
     Properties:
@@ -42,16 +49,16 @@ Resources:
       - openid
       - profile
       CallbackURLs:
-      - 'https://cloudonaut.io/api/cognito/login/'
+      - 'https://alisherfreedomaintry.tk'
       ClientName: website
-      DefaultRedirectURI: 'https://cloudonaut.io/api/cognito/login/'
+      DefaultRedirectURI: 'https://alisherfreedomaintry.tk'
       ExplicitAuthFlows:
       - ALLOW_USER_SRP_AUTH
       - ALLOW_REFRESH_TOKEN_AUTH # always on
       GenerateSecret: true
       IdTokenValidity: 1
-      LogoutURLs:
-      - 'https://cloudonaut.io/api/cognito/logout/'
+#      LogoutURLs:
+#      - 'https://idk.tk'
       PreventUserExistenceErrors: ENABLED
       RefreshTokenValidity: 30
       SupportedIdentityProviders:
@@ -61,6 +68,7 @@ Resources:
         IdToken: days
         RefreshToken: days
       UserPoolId: !Ref UserPool
+
 Outputs:
   CognitoUserPoolId:
     Value: !Ref UserPool
