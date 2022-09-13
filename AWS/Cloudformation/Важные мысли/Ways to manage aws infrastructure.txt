@@ -28,3 +28,9 @@ Pros:
 2)Human readable
 3)Just a wrapper
 4)No structures
+
+Components
+Pros:
+1)Best practice structures
+2)Abstraction
+3)Magic

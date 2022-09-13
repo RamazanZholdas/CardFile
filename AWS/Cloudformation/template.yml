@@ -4,6 +4,9 @@ Description:
   "Here is the template to describe 1st week and 2nd week"
 
 Parameters:
+  AuthName:
+    Type: String
+    Description: Unique Auth Name for Cognito Resources
   pDbName:
     Type: String
   pDbUser:
@@ -366,73 +369,42 @@ Resources:
             DNSName: !GetAtt CFDistribution.DomainName
 
   UserPool:
-    Type: 'AWS::Cognito::UserPool'
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
-    DependsOn:
-      - CFDistribution
-      - DNS
-      - ACMCertificate
-      - Route53HZ
+    Type: "AWS::Cognito::UserPool"
     Properties:
-      AccountRecoverySetting:
-        RecoveryMechanisms:
-        - Name: verified_email
-          Priority: 1
-      AdminCreateUserConfig:
-        AllowAdminCreateUserOnly: true
-      AliasAttributes:
-      - preferred_username
+      UserPoolName: !Sub ${AuthName}-user-pool
       AutoVerifiedAttributes:
-      - email
-      EnabledMfas:
-      - SOFTWARE_TOKEN_MFA
-      MfaConfiguration: OPTIONAL
-      UserPoolName: !Ref 'AWS::StackName'
+        - email
+      MfaConfiguration: "OFF"
+      EmailConfiguration:
+        EmailSendingAccount: COGNITO_DEFAULT
+      Schema:
+        - Name: email
+          AttributeDataType: String
+          Mutable: false
+          Required: true
 
-  UserPoolDomain:
-    Type: 'AWS::Cognito::UserPoolDomain'
+
+
+
+  # Creates a User Pool Client to be used by the identity pool
+  UserPoolClient:
+    Type: "AWS::Cognito::UserPoolClient"
     Properties:
-      Domain: 'alisherfreedomaintry'
+      ClientName: !Sub ${AuthName}-client
+      GenerateSecret: false
       UserPoolId: !Ref UserPool
-      
-  ClientWebsite:
-    Type: 'AWS::Cognito::UserPoolClient'
+
+
+  # Creates a federeated Identity pool
+  IdentityPool:
+    Type: "AWS::Cognito::IdentityPool"
     Properties:
-      AccessTokenValidity: 1
-      AllowedOAuthFlows:
-      - code
-      AllowedOAuthFlowsUserPoolClient: true
-      AllowedOAuthScopes:
-      - phone
-      - email
-      - openid
-      - profile
-      CallbackURLs:
-      - 'https://alisherfreedomaintry.tk'
-      ClientName: website
-      DefaultRedirectURI: 'https://alisherfreedomaintry.tk'
-      ExplicitAuthFlows:
-      - ALLOW_USER_SRP_AUTH
-      - ALLOW_REFRESH_TOKEN_AUTH # always on
-      GenerateSecret: true
-      IdTokenValidity: 1
-#      LogoutURLs:
-#      - 'https://idk.tk'
-      PreventUserExistenceErrors: ENABLED
-      RefreshTokenValidity: 30
-      SupportedIdentityProviders:
-      - COGNITO
-      TokenValidityUnits:
-        AccessToken: days
-        IdToken: days
-        RefreshToken: days
-      UserPoolId: !Ref UserPool
+      IdentityPoolName: !Sub ${AuthName}Identity
+      AllowUnauthenticatedIdentities: true
+      CognitoIdentityProviders:
+        - ClientId: !Ref UserPoolClient
+          ProviderName: !GetAtt UserPool.ProviderName
 
 Outputs:
   CognitoUserPoolId:
     Value: !Ref UserPool
-  CognitoClientId:
-    Value: !Ref ClientWebsite
-  CognitoDomainName:
-    Value: !Ref UserPoolDomain

@@ -56,7 +56,7 @@ Resources:
     Type: 'AWS::Lambda::Function'
     Properties:
       Handler: 'lambda.handler'
-      MemorySize: 256
+      MemorySize: 128
       Role: !GetAtt 'ViewerRequestRole.Arn'
       Runtime: 'nodejs16.x'
       Timeout: 5
@@ -135,7 +135,7 @@ Resources:
     Type: 'AWS::Lambda::Function'
     Properties:
       Handler: 'lambda.handler'
-      MemorySize: 256
+      MemorySize: 128
       Role: !GetAtt 'OriginRequestRole.Arn'
       Runtime: 'nodejs16.x'
       Timeout: 30
