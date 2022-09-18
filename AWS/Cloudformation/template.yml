@@ -207,10 +207,19 @@ Resources:
             - !Ref InstanceSecGroup
         UserData:
           Fn::Base64: !Sub |     # No more Fn::Join needed
-            #!/bin/bash
-            yum update -y
+            #!bin/bash
+            yum update
+            yum install -y aws-cli
+            yum install -y ruby
             yum install -y golang
             yum install -y git
+            yum install -y wget
+            cd /home/ec2-user
+            wget https://aws-codedeploy-us-east-1.s3.us-east-1.amazonaws.com/latest/install
+            chmod +x ./install
+            sudo ./install auto > /tmp/logfile
+            sudo systemctl enable codedeploy-agent
+            sudo systemctl start codedeploy-agent
 
   MyASG:
     Type: AWS::AutoScaling::AutoScalingGroup
