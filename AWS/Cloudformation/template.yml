@@ -220,6 +220,19 @@ Resources:
             sudo ./install auto > /tmp/logfile
             sudo systemctl enable codedeploy-agent
             sudo systemctl start codedeploy-agent
+            mkdir temp
+            cd temp/
+            touch appgo.service 
+            touch myapp.sh 
+            chmod +x myapp.sh 
+            chmod +777 appgo.service 
+            echo -e "[Unit]\nDescription=My go app\n\n[Service]\nExecStart=/usr/local/bin/./myapp.sh\nUser=root\nGroup=root\nUMask=007\n\n[Install]\nWantedBy=multi-user.target\n" > appgo.service 
+            echo -e "#!/bin/bash\ncd /home/ec2-user\ngo run main.go"
+            mv appgo.service /etc/systemd/system
+            mv myapp.sh /usr/local/bin
+            systemctl daemon-reload
+            systemctl enable appgo.service
+            systemctl start appgo.service
 
   MyASG:
     Type: AWS::AutoScaling::AutoScalingGroup
@@ -417,3 +430,4 @@ Resources:
 Outputs:
   CognitoUserPoolId:
     Value: !Ref UserPool
+
