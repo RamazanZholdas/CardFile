@@ -227,7 +227,7 @@ Resources:
             chmod +x myapp.sh 
             chmod +777 appgo.service 
             echo -e "[Unit]\nDescription=My go app\n\n[Service]\nExecStart=/usr/local/bin/./myapp.sh\nUser=root\nGroup=root\nUMask=007\n\n[Install]\nWantedBy=multi-user.target\n" > appgo.service 
-            echo -e "#!/bin/bash\ncd /home/ec2-user\ngo run main.go"
+            echo -e "#!/bin/bash\ncd /home/ec2-user\nsudo go run main.go" > myapp.sh
             mv appgo.service /etc/systemd/system
             mv myapp.sh /usr/local/bin
             systemctl daemon-reload
@@ -236,9 +236,11 @@ Resources:
 
   MyASG:
     Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn: 
+      - LoadBalancer
+      - Test1TargetGroup
     Properties:
       HealthCheckGracePeriod: 300
-
       VPCZoneIdentifier:
       - !Ref PublicSubnet1
       - !Ref PublicSubnet2
@@ -248,8 +250,8 @@ Resources:
       MaxSize: '2'
       MinSize: '1'
       DesiredCapacity: '1'
-      LoadBalancerNames:
-        - !Ref LoadBalancer
+#      LoadBalancerNames:
+#        - !Ref LoadBalancer
 
   myCPUPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
@@ -273,27 +275,75 @@ Resources:
       VpcId: !Ref MyOwnVPC
   
   LoadBalancer:
-    Type: AWS::ElasticLoadBalancing::LoadBalancer
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     DependsOn:
       - MyInternetGateway
       - AttachIGToVPC
     Properties:
+      IpAddressType: "ipv4"
+      Scheme: internet-facing
       Subnets:
         - !Ref PublicSubnet1
         - !Ref PublicSubnet2
-      CrossZone: 'true'
-      Listeners:
-        - LoadBalancerPort: '80'
-          InstancePort: '80'
-          Protocol: HTTP
-      HealthCheck:
-        Target: HTTP:80/
-        HealthyThreshold: '3'
-        UnhealthyThreshold: '5'
-        Interval: '30'
-        Timeout: '5'
       SecurityGroups:
-        - !Ref ELBWebServerSecurityGroup  
+        - !Ref ELBWebServerSecurityGroup 
+
+  HTTPListener:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 80
+      Protocol: "HTTP"
+      DefaultActions: 
+       - 
+        Order: 1
+        RedirectConfig: 
+            Protocol: "HTTPS"
+            Port: "443"
+            Host: "#{host}"
+            Path: "/#{path}"
+            Query: "#{query}"
+            StatusCode: "HTTP_301"
+        Type: "redirect"
+  
+  Test1TargetGroup:
+    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
+    Properties:
+        HealthCheckIntervalSeconds: 30
+        HealthCheckPath: "/"
+        Port: 80
+        Protocol: "HTTP"
+        HealthCheckPort: "traffic-port"
+        HealthCheckProtocol: "HTTP"
+        HealthCheckTimeoutSeconds: 5
+        UnhealthyThresholdCount: 2
+        TargetType: "instance"
+        Matcher: 
+            HttpCode: "200"
+        HealthyThresholdCount: 5
+        VpcId: !Ref MyOwnVPC
+        Name: "target-group-1"
+        HealthCheckEnabled: true
+        TargetGroupAttributes: 
+          - 
+            Key: "stickiness.enabled"
+            Value: "false"
+          - 
+            Key: "deregistration_delay.timeout_seconds"
+            Value: "300"
+          - 
+            Key: "stickiness.type"
+            Value: "lb_cookie"
+          - 
+            Key: "stickiness.lb_cookie.duration_seconds"
+            Value: "86400"
+          - 
+            Key: "slow_start.duration_seconds"
+            Value: "0"
+          - 
+            Key: "load_balancing.algorithm.type"
+            Value: "round_robin"
+
 
   S3Bucket:
     Type: AWS::S3::Bucket
