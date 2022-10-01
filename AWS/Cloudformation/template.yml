@@ -236,8 +236,9 @@ Resources:
     Type: AWS::AutoScaling::AutoScalingGroup
     DependsOn:
       - LoadBalancer
-      - Test1TargetGroup
     Properties:
+      TargetGroupARNs:
+        - !Ref Test1TargetGroup
       HealthCheckGracePeriod: 300
       VPCZoneIdentifier:
         - !Ref PublicSubnet1
@@ -270,6 +271,11 @@ Resources:
           FromPort: '80'
           ToPort: '80'
           CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+
       VpcId: !Ref MyOwnVPC
 
   LoadBalancer:
