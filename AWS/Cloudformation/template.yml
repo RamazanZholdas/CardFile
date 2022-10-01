@@ -446,16 +446,16 @@ Resources:
     Properties:
       HostedZoneId: !Ref Route53HZ
       RecordSets:
-        - Name: 'elb.alisherfreedomaintry.tk'
-          Type: A
-          AliasTarget:
-            DNSName: !GetAtt LoadBalancer.DNSName
-            HostedZoneId: Z2FDTNDATAQYW2
         - Name: 'alisherfreedomaintry.tk'
           Type: A
           AliasTarget:
             HostedZoneId: Z2FDTNDATAQYW2
             DNSName: !GetAtt CFDistribution.DomainName
+        - Name: 'elb.alisherfreedomaintry.tk'
+          Type: A
+          AliasTarget:
+            DNSName: !GetAtt LoadBalancer.DNSName
+            HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
 
   UserPool:
     Type: 'AWS::Cognito::UserPool'
