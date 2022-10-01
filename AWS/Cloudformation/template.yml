@@ -451,11 +451,12 @@ Resources:
           AliasTarget:
             HostedZoneId: Z2FDTNDATAQYW2
             DNSName: !GetAtt CFDistribution.DomainName
-        - Name: 'elb.alisherfreedomaintry.tk'
+        - Name: 'elb.alisherfreedomaintry.tk.'
           Type: A
           AliasTarget:
             DNSName: !GetAtt LoadBalancer.DNSName
-            HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
+            HostedZoneId: Z2FDTNDATAQYW2
+            EvaluateTargetHealth: false
 
   UserPool:
     Type: 'AWS::Cognito::UserPool'
