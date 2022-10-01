@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
-Description:
-  "Here is the template to describe 1st week and 2nd week"
+Description: 'Here is the template to describe 1st week and 2nd week'
 
 Parameters:
   AuthName:
@@ -13,7 +12,7 @@ Parameters:
     Type: String
   pDbPass:
     Type: String
-    Description: "It should be less than 8 characters"
+    Description: 'It should be less than 8 characters'
     NoEcho: true
   BucketName:
     Type: String
@@ -22,25 +21,24 @@ Parameters:
     Type: String
     Description: The target utilization for the CPU metric
   OriginKeepaliveTimeout:
-    Description:    You can create a custom keep-alive timeout. All timeout units are in seconds. The default keep-alive timeout is 5 seconds, but you can configure custom timeout lengths. The minimum timeout length is 1 second; the maximum is 60 seconds.
-    Type:           String
-    Default:        "60"
+    Description: You can create a custom keep-alive timeout. All timeout units are in seconds. The default keep-alive timeout is 5 seconds, but you can configure custom timeout lengths. The minimum timeout length is 1 second; the maximum is 60 seconds.
+    Type: String
+    Default: '60'
   OriginProtocolPolicy:
-    Description:    CloudFront Origin Protocol Policy to apply to your origin.
-    Type:           String
-    Default:        "http-only"
+    Description: CloudFront Origin Protocol Policy to apply to your origin.
+    Type: String
+    Default: 'http-only'
     AllowedValues:
       - http-only
       - match-viewer
       - https-only
 
   OriginReadTimeout:
-    Description:    You can create a custom origin read timeout. All timeout units are in seconds. The default origin read timeout is 30 seconds, but you can configure custom timeout lengths. The minimum timeout length is 4 seconds; the maximum is 60 seconds.
-    Type:           String
-    Default:        "30"
+    Description: You can create a custom origin read timeout. All timeout units are in seconds. The default origin read timeout is 30 seconds, but you can configure custom timeout lengths. The minimum timeout length is 4 seconds; the maximum is 60 seconds.
+    Type: String
+    Default: '30'
 
 Resources:
-  
   MyOwnVPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -51,13 +49,13 @@ Resources:
       Tags:
         - Key: Name
           Value: !Ref AWS::StackName
-  
+
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref MyOwnVPC
       CidrBlock: 10.0.1.0/24
-      AvailabilityZone: !Select [ 0, !GetAZs ]  
+      AvailabilityZone: !Select [0, !GetAZs ]
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName} Public subnet 1
@@ -67,7 +65,7 @@ Resources:
     Properties:
       VpcId: !Ref MyOwnVPC
       CidrBlock: 10.0.2.0/24
-      AvailabilityZone: !Select [ 1, !GetAZs ]
+      AvailabilityZone: !Select [1, !GetAZs ]
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName} Public subnet 2
@@ -77,25 +75,25 @@ Resources:
     Properties:
       VpcId: !Ref MyOwnVPC
       CidrBlock: 10.0.3.0/24
-      AvailabilityZone: !Select [ 0, !GetAZs ]
+      AvailabilityZone: !Select [0, !GetAZs ]
       Tags:
         - Key: Name
           Value: !Sub ${AWS::StackName} Private subnet 1
-  
+
   PrivateSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref MyOwnVPC
       CidrBlock: 10.0.4.0/24
-      AvailabilityZone: !Select [ 1, !GetAZs ]
+      AvailabilityZone: !Select [1, !GetAZs ]
       Tags:
-        - Key: Name  
+        - Key: Name
           Value: !Sub ${AWS::StackName} Private subnet 2
 
   MyInternetGateway:
     Type: AWS::EC2::InternetGateway
     DependsOn: MyOwnVPC
-  
+
   AttachIGToVPC:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
@@ -104,12 +102,12 @@ Resources:
 
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
-    Properties: 
+    Properties:
       VpcId: !Ref MyOwnVPC
       Tags:
-        - Key: Name  
+        - Key: Name
           Value: PublicRouteTable
-  
+
   Route1:
     Type: AWS::EC2::Route
     DependsOn: AttachIGToVPC
@@ -133,7 +131,7 @@ Resources:
   InstanceSecGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: Open 22 and 80 for ec2 Instance 
+      GroupDescription: Open 22 and 80 for ec2 Instance
       VpcId: !Ref MyOwnVPC
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -143,7 +141,7 @@ Resources:
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
-          CidrIp: 0.0.0.0/0     
+          CidrIp: 0.0.0.0/0
       SecurityGroupEgress:
         - IpProtocol: -1
           CidrIp: 0.0.0.0/0
@@ -185,8 +183,8 @@ Resources:
       DBInstanceClass: db.t2.micro
       StorageType: gp2
       PubliclyAccessible: false
-      AllocatedStorage: "20"
-      DBInstanceIdentifier: !Join ["-", [ "MyMySQLDbInstance", !Ref "AWS::Region" ]]
+      AllocatedStorage: '20'
+      DBInstanceIdentifier: !Join ['-', ['MyMySQLDbInstance', !Ref 'AWS::Region']]
       MultiAZ: true
       VPCSecurityGroups:
         - !Ref DatabaseSecGroup
@@ -201,12 +199,12 @@ Resources:
         InstanceType: t2.micro
         InstanceInitiatedShutdownBehavior: terminate
         NetworkInterfaces:
-        - DeviceIndex: 0
-          AssociatePublicIpAddress: true
-          Groups:
-            - !Ref InstanceSecGroup
+          - DeviceIndex: 0
+            AssociatePublicIpAddress: true
+            Groups:
+              - !Ref InstanceSecGroup
         UserData:
-          Fn::Base64: !Sub |     # No more Fn::Join needed
+          Fn::Base64: !Sub | # No more Fn::Join needed
             #!bin/bash
             yum update
             yum install -y aws-cli
@@ -236,22 +234,22 @@ Resources:
 
   MyASG:
     Type: AWS::AutoScaling::AutoScalingGroup
-    DependsOn: 
+    DependsOn:
       - LoadBalancer
       - Test1TargetGroup
     Properties:
       HealthCheckGracePeriod: 300
       VPCZoneIdentifier:
-      - !Ref PublicSubnet1
-      - !Ref PublicSubnet2
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
       LaunchTemplate:
         LaunchTemplateId: !Ref MyLaunchTemplate
         Version: !GetAtt MyLaunchTemplate.LatestVersionNumber
       MaxSize: '2'
       MinSize: '1'
       DesiredCapacity: '1'
-#      LoadBalancerNames:
-#        - !Ref LoadBalancer
+  #      LoadBalancerNames:
+  #        - !Ref LoadBalancer
 
   myCPUPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
@@ -273,77 +271,83 @@ Resources:
           ToPort: '80'
           CidrIp: 0.0.0.0/0
       VpcId: !Ref MyOwnVPC
-  
+
   LoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     DependsOn:
       - MyInternetGateway
       - AttachIGToVPC
     Properties:
-      IpAddressType: "ipv4"
+      IpAddressType: 'ipv4'
       Scheme: internet-facing
       Subnets:
         - !Ref PublicSubnet1
         - !Ref PublicSubnet2
       SecurityGroups:
-        - !Ref ELBWebServerSecurityGroup 
+        - !Ref ELBWebServerSecurityGroup
 
   HTTPListener:
-    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
     Properties:
       LoadBalancerArn: !Ref LoadBalancer
       Port: 80
-      Protocol: "HTTP"
-      DefaultActions: 
-       - 
-        Order: 1
-        RedirectConfig: 
-            Protocol: "HTTPS"
-            Port: "443"
-            Host: "#{host}"
-            Path: "/#{path}"
-            Query: "#{query}"
-            StatusCode: "HTTP_301"
-        Type: "redirect"
-  
-  Test1TargetGroup:
-    Type: "AWS::ElasticLoadBalancingV2::TargetGroup"
-    Properties:
-        HealthCheckIntervalSeconds: 30
-        HealthCheckPath: "/"
-        Port: 80
-        Protocol: "HTTP"
-        HealthCheckPort: "traffic-port"
-        HealthCheckProtocol: "HTTP"
-        HealthCheckTimeoutSeconds: 5
-        UnhealthyThresholdCount: 2
-        TargetType: "instance"
-        Matcher: 
-            HttpCode: "200"
-        HealthyThresholdCount: 5
-        VpcId: !Ref MyOwnVPC
-        Name: "target-group-1"
-        HealthCheckEnabled: true
-        TargetGroupAttributes: 
-          - 
-            Key: "stickiness.enabled"
-            Value: "false"
-          - 
-            Key: "deregistration_delay.timeout_seconds"
-            Value: "300"
-          - 
-            Key: "stickiness.type"
-            Value: "lb_cookie"
-          - 
-            Key: "stickiness.lb_cookie.duration_seconds"
-            Value: "86400"
-          - 
-            Key: "slow_start.duration_seconds"
-            Value: "0"
-          - 
-            Key: "load_balancing.algorithm.type"
-            Value: "round_robin"
+      Protocol: 'HTTP'
+      DefaultActions:
+        - Order: 1
+          RedirectConfig:
+            Protocol: 'HTTPS'
+            Port: '443'
+            Host: '#{host}'
+            Path: '/#{path}'
+            Query: '#{query}'
+            StatusCode: 'HTTP_301'
+          Type: 'redirect'
 
+  HTTPSListener:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Properties:
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 443
+      Protocol: 'HTTPS'
+      SslPolicy: 'ELBSecurityPolicy-2016-08'
+      Certificates:
+        - CertificateArn: !Ref ACMCertificate
+      DefaultActions:
+        - Order: 1
+          TargetGroupArn: !Ref Test1TargetGroup
+          Type: 'forward'
+
+  Test1TargetGroup:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Properties:
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: '/'
+      Port: 80
+      Protocol: 'HTTP'
+      HealthCheckPort: 'traffic-port'
+      HealthCheckProtocol: 'HTTP'
+      HealthCheckTimeoutSeconds: 5
+      UnhealthyThresholdCount: 2
+      TargetType: 'instance'
+      Matcher:
+        HttpCode: '200'
+      HealthyThresholdCount: 5
+      VpcId: !Ref MyOwnVPC
+      Name: 'target-group-1'
+      HealthCheckEnabled: true
+      TargetGroupAttributes:
+        - Key: 'stickiness.enabled'
+          Value: 'false'
+        - Key: 'deregistration_delay.timeout_seconds'
+          Value: '300'
+        - Key: 'stickiness.type'
+          Value: 'lb_cookie'
+        - Key: 'stickiness.lb_cookie.duration_seconds'
+          Value: '86400'
+        - Key: 'slow_start.duration_seconds'
+          Value: '0'
+        - Key: 'load_balancing.algorithm.type'
+          Value: 'round_robin'
 
   S3Bucket:
     Type: AWS::S3::Bucket
@@ -384,9 +388,11 @@ Resources:
   ACMCertificate:
     Type: AWS::CertificateManager::Certificate
     Properties:
+      SubjectAlternativeNames:
+        - '*.alisherfreedomaintry.tk'
       DomainName: alisherfreedomaintry.tk
       DomainValidationOptions:
-        - DomainName: '*.alisherfreedomaintry.tk'
+        - DomainName: 'alisherfreedomaintry.tk'
           HostedZoneId: !Ref Route53HZ
       ValidationMethod: DNS
 
@@ -395,7 +401,7 @@ Resources:
     Properties:
       DistributionConfig:
         ViewerCertificate:
-#            ACMCertificateIdentifier: !Sub 'arn:aws:acm:${AWS::Region}:${AWS::AccountId}:certificate/${!GetAtt ACMCertificate.CertificateArn}'
+          #            ACMCertificateIdentifier: !Sub 'arn:aws:acm:${AWS::Region}:${AWS::AccountId}:certificate/${!GetAtt ACMCertificate.CertificateArn}'
           AcmCertificateArn: !Ref ACMCertificate
           SslSupportMethod: sni-only
           MinimumProtocolVersion: TLSv1.2_2021
@@ -403,20 +409,20 @@ Resources:
         Aliases:
           - alisherfreedomaintry.tk
         Origins:
-#        - DomainName: !Join [".", [!Ref BucketName, s3, us-east-1, amazonaws, com]]
-        - DomainName: !GetAtt 'S3Bucket.DomainName'
-          Id: !Ref S3Bucket
-          CustomOriginConfig:
-            HTTPPort: '80'
-            HTTPSPort: '443'
-            OriginProtocolPolicy: !Ref 'OriginProtocolPolicy'
-            OriginKeepaliveTimeout: !Ref 'OriginKeepaliveTimeout'
-            OriginReadTimeout: !Ref 'OriginReadTimeout'
-            OriginSSLProtocols:
-              - TLSv1
-              - TLSv1.1
-              - TLSv1.2
-              - SSLv3
+          #        - DomainName: !Join [".", [!Ref BucketName, s3, us-east-1, amazonaws, com]]
+          - DomainName: !GetAtt 'S3Bucket.DomainName'
+            Id: !Ref S3Bucket
+            CustomOriginConfig:
+              HTTPPort: '80'
+              HTTPSPort: '443'
+              OriginProtocolPolicy: !Ref 'OriginProtocolPolicy'
+              OriginKeepaliveTimeout: !Ref 'OriginKeepaliveTimeout'
+              OriginReadTimeout: !Ref 'OriginReadTimeout'
+              OriginSSLProtocols:
+                - TLSv1
+                - TLSv1.1
+                - TLSv1.2
+                - SSLv3
         Enabled: true
         DefaultCacheBehavior:
           AllowedMethods:
@@ -434,6 +440,11 @@ Resources:
     Properties:
       HostedZoneId: !Ref Route53HZ
       RecordSets:
+        - Name: 'elb.alisherfreedomaintry.tk'
+          Type: A
+          AliasTarget:
+            DNSName: !GetAtt LoadBalancer.DNSName
+            HostedZoneId: Z2FDTNDATAQYW2
         - Name: 'alisherfreedomaintry.tk'
           Type: A
           AliasTarget:
@@ -441,12 +452,12 @@ Resources:
             DNSName: !GetAtt CFDistribution.DomainName
 
   UserPool:
-    Type: "AWS::Cognito::UserPool"
+    Type: 'AWS::Cognito::UserPool'
     Properties:
       UserPoolName: !Sub ${AuthName}-user-pool
       AutoVerifiedAttributes:
         - email
-      MfaConfiguration: "OFF"
+      MfaConfiguration: 'OFF'
       EmailConfiguration:
         EmailSendingAccount: COGNITO_DEFAULT
       Schema:
@@ -455,21 +466,15 @@ Resources:
           Mutable: false
           Required: true
 
-
-
-
-  # Creates a User Pool Client to be used by the identity pool
   UserPoolClient:
-    Type: "AWS::Cognito::UserPoolClient"
+    Type: 'AWS::Cognito::UserPoolClient'
     Properties:
       ClientName: !Sub ${AuthName}-client
       GenerateSecret: false
       UserPoolId: !Ref UserPool
 
-
-  # Creates a federeated Identity pool
   IdentityPool:
-    Type: "AWS::Cognito::IdentityPool"
+    Type: 'AWS::Cognito::IdentityPool'
     Properties:
       IdentityPoolName: !Sub ${AuthName}Identity
       AllowUnauthenticatedIdentities: true
@@ -477,7 +482,174 @@ Resources:
         - ClientId: !Ref UserPoolClient
           ProviderName: !GetAtt UserPool.ProviderName
 
-Outputs:
-  CognitoUserPoolId:
-    Value: !Ref UserPool
+  MyEC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy
+        - arn:aws:iam::aws:policy/AWSCodeDeployFullAccess
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+        - arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole
 
+  MyInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: '/'
+      Roles:
+        - !Ref MyEC2Role
+
+  MyCodeDeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codedeploy.amazonaws.com
+            Action: sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEC2FullAccess
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforAWSCodeDeploy
+        - arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole
+
+  CodeCommitRepo:
+    Type: AWS::CodeCommit::Repository
+    Properties:
+      RepositoryName:
+        Ref: AWS::StackName
+      RepositoryDescription: CodeCommit Repository
+
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: codebuild.amazonaws.com
+          Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  CodeBuildGoProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      ServiceRole: !Ref CodeBuildRole
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:4.0
+        Type: LINUX_CONTAINER
+      Name: !Sub ${AWS::StackName}CodeBuildGoProject
+      Source:
+        Type: CODECOMMIT
+        Location:
+          Fn::Join:
+            - ''
+            - - 'https://git-codecommit.'
+              - Ref: AWS::Region
+              - '.amazonaws.com/v1/repos/'
+              - Ref: AWS::StackName
+
+  MyApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: 'MyApplicationForCD'
+      ComputePlatform: 'Server'
+
+  MyDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: 'MyApplicationForCD' # Required
+      AutoScalingGroups:
+        - !Ref MyASG
+      DeploymentConfigName: CodeDeployDefault.AllAtOnce
+      DeploymentGroupName: 'MyDeploymentGroup'
+      ServiceRoleArn: !GetAtt MyCodeDeployRole.Arn # Required
+
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          Effect: Allow
+          Principal:
+            Service: codepipeline.amazonaws.com
+          Action: sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  ArtifactStoreBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+      AccessControl: BucketOwnerFullControl
+
+  CodePipelineStack:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      ArtifactStore:
+        Location:
+          Ref: ArtifactStoreBucket
+        Type: S3
+      RoleArn: !GetAtt [CodePipelineRole, Arn]
+      Stages:
+        - Name: Source
+          Actions:
+            - InputArtifacts: []
+              Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: 1
+                Provider: CodeCommit
+              OutputArtifacts:
+                - Name: MyApp
+              Configuration:
+                BranchName: 'main'
+                RepositoryName: !Ref AWS::StackName
+              RunOrder: 1
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: 1
+                Provider: CodeBuild
+              OutputArtifacts:
+                - Name: MyAppBuild
+              InputArtifacts:
+                - Name: MyApp
+              Configuration:
+                ProjectName: !Ref CodeBuildGoProject
+              RunOrder: 1
+        - Name: Deploy
+          Actions:
+            - Name: DeployApp
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: 1
+                Provider: CodeDeploy
+              InputArtifacts:
+                - Name: MyAppBuild
+              Configuration:
+                ApplicationName: !Ref MyApplication
+                DeploymentGroupName: !Ref MyDeploymentGroup
+              RunOrder: 1
