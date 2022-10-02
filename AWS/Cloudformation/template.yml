@@ -195,6 +195,8 @@ Resources:
     Properties:
       LaunchTemplateName: My-Launch-template-for-asg
       LaunchTemplateData:
+        IamInstanceProfile:
+          Arn: !GetAtt MyInstanceProfile.Arn
         ImageId: ami-05fa00d4c63e32376
         InstanceType: t2.micro
         InstanceInitiatedShutdownBehavior: terminate
@@ -455,7 +457,7 @@ Resources:
           Type: A
           AliasTarget:
             DNSName: !GetAtt LoadBalancer.DNSName
-            HostedZoneId: Z2FDTNDATAQYW2
+            HostedZoneId: !GetAtt LoadBalancer.CanonicalHostedZoneID
             EvaluateTargetHealth: false
 
   UserPool:
