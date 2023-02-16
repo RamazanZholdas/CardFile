@@ -46,7 +46,7 @@
 
         function CallMe() {
             let request = new XMLHttpRequest();
-            request.open("GET", "http://MaLoadBalancerBruh-757247827.us-east-1.elb.amazonaws.com/getAllSongs");
+            request.open("GET", "https://elb.alisherfreedomaintry.tk/getAllSongs");
             request.send();
             request.onload = () => {
                 alert(request.responseText)
@@ -54,10 +54,10 @@
         }
 
         //=============== AWS IDs ===============
-        var userPoolId = 'us-east-1_uvsnIEQB5';
-        var clientId = '5fp1koifg5pjmkm30rouipl1um';
+        var userPoolId = 'us-east-1_kHN4pcucb';
+        var clientId = '1tlvdlu88acqqptt0par1n2imu';
         var region = 'us-east-1';
-        var identityPoolId = 'us-east-1:892fe225-6c06-4bf4-a5d4-78f16a0ba0c4';
+        var identityPoolId = 'us-east-1:f80b7955-e425-4aa3-ba1b-e93600030ffe';
         //=============== AWS IDs ===============
 
         var cognitoUser;
