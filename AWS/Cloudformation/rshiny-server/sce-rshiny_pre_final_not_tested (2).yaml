@@ -1,0 +1,806 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: r-shiny infrastructure
+Parameters:
+  #####| Network            |#####
+  AcmCertificate:
+    Type: String
+    Description: 'Arn of SSL certificate on Amazon Certificate Manager'
+    Default: arn:aws:acm:us-east-1:565438384399:certificate/228bc478-cd27-48ee-9963-ef175aeed4dd
+  VPC:
+    Type: String
+    Default: vpc-0b12d8e26df075f4a
+  Subnet1:
+    Type: String
+    Default: subnet-0df57363275a3dae5
+  Subnet2:
+    Type: String
+    Default: subnet-06322151845e02c86
+  SessionHostSecurityGroup:
+    Type: String
+    Default: sg-0486cb6a7a5833dad
+  #####| EC2                |#####
+  APIInstanceType:
+    AllowedValues:
+      - t3.large
+      - t3.2xlarge
+      - r5.2xlarge
+    ConstraintDescription: must be a valid EC2 instance type.
+    Default: t3.2xlarge
+    Description: 'WebServer EC2 instance type'
+    Type: String
+  EC2KeyPairName:
+    Description: 'Name of an existing EC2 KeyPair'
+    Type: 'AWS::EC2::KeyPair::KeyName'
+  #####| Route53            |#####
+  SetupBucket:
+    Type: String
+    Description: 'setup bucket'
+    Default: sce-test-setup-bucket
+  #####| Application        |#####
+  LinuxServerVolumeSize:
+    Type: String
+    Default: 100
+  LinuxServerLocalPath:
+    Type: String
+    Default: /mnt/winShare
+  WindowsShareLocation:
+    Type: String
+    Default: '//client-1a/data'
+  WindowsShinyAppsLocation:
+    Type: String
+    Default: '//client-1a/shinyAppsShare'
+  WindowsShinyLogsLocation:
+    Type: String
+    Default: '//client-1a/logsShare'
+  WindowsShinyDataLocation:
+    Type: String
+    Default: '//client-1a/dataShare'
+  WindowsShareUser:
+    Type: String
+    Default: 'rshiny.service'
+  WindowsSharePassword:
+    Type: String
+    Default: 'DYX3SXuoZb13QZNQLXNkvFVw4ld2TtmS'
+    NoEcho: true
+  WindowsShareDomain:
+    Type: String
+    Default: 'smmt.edetekapps.com'
+  #####| Other              |#####
+  Environment:
+    Type: String
+    Default: smmt
+  Platform:
+    Type: String
+    Default: sce
+  Company:
+    Type: String
+    Default: edetek
+  Owner:
+    Type: String
+    Default: anatoly.podstrelov
+  UIURL:
+    Type: String
+    Default: r-shiny.edetekapps.com
+Mappings:
+  Linux2AMI:
+    us-east-1:
+      AMI: ami-04581fbf744a7d11f
+    us-west-2:
+      AMI: ami-07f3ef11ec14a1ea3
+  ELBAccountId:
+    us-east-1:
+      value: '127311923021'
+    us-west-2:
+      value: '797873946194'
+Resources:
+  ######| SecurityGroups    |#####
+  SecurityGroupWebServer:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref VPC
+      GroupDescription: Enable HTTP access via 8080 port
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          SourceSecurityGroupId: !Ref SecurityGroupALB
+        - IpProtocol: '-1'
+          SourceSecurityGroupId: !Ref SessionHostSecurityGroup
+  SecurityGroupALB:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      VpcId: !Ref VPC
+      GroupDescription: Enable HTTPS access via 443 port
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId: !Ref SessionHostSecurityGroup
+  SecurityGroupIngress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref SessionHostSecurityGroup
+      IpProtocol: -1
+      SourceSecurityGroupId: !Ref SecurityGroupWebServer
+      Description: RShiny WS
+  ######| IAM Roles         |#####
+  EC2InstanceRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+  EC2InstanceRolePolicies:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: !Sub '${Platform}-S3accessPolicy'
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: '*'
+            Resource:
+              - !Sub 'arn:aws:s3:::${SetupBucket}*'
+          - Effect: Allow
+            Action: 'ec2:CreateTags'
+            Resource:
+              - 'arn:aws:ec2:*:*:volume/*'
+          - Effect: Allow
+            Action:
+              - 'ec2:DescribeVolumes'
+              - 'cloudwatch:PutMetricData'
+              - 'ec2:DescribeTags'
+              - 'logs:PutLogEvents'
+              - 'logs:DescribeLogStreams'
+              - 'logs:DescribeLogGroups'
+              - 'logs:CreateLogStream'
+              - 'logs:CreateLogGroup'
+            Resource:
+              - '*'
+          - Effect: Allow
+            Action:
+              - 'ssm:GetParameter'
+            Resource:
+              - !Sub 'arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/${SSMCloudWatchParameter}'
+              - !Sub 'arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/${CloudWatchAgentParameter}'
+              - !Sub 'arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/${ApacheInstallationParameter}'
+              #- !Sub 'arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/${CodeDeployAgentParameter}'
+              #- !Sub 'arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/${SSMCloudWatchParameter}'
+              #- !Sub 'arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/${AdminInitParameter}'
+              #- !Sub 'arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/${SYSAppGlobParameter}'
+              #- !Sub 'arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/${SYSS3Parameter}'
+              #- !Sub 'arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/${SYSPasswordParameter}'
+              #- !Sub 'arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/${SYSProgramHostParameter}'
+              #- !Sub 'arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/${DSPAppGlobParameter}'
+              #- !Sub 'arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/${EC2VolumesTagging}'
+              #- !Sub 'arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/${TomcatTempDirCleanupParameter}'
+              #- !Sub 'arn:aws:ssm:us-east-1:${AWS::AccountId}:parameter/${TomcatTempDirCleanupSetupParameter}'
+          - Effect: Allow
+            Action:
+              - 'autoscaling:DescribeAutoScalingGroups'
+              - 'autoscaling:DescribeAutoScalingInstances'
+              - 'ec2:DescribeTags'
+              - 'ec2:DescribeVolumes'
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - 'ec2:CreateTags'
+            Resource: !Sub 'arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/*'
+          - Effect: Allow
+            Action:
+              - 'cloudformation:DescribeStacks'
+            Resource:
+              - !Sub 'arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${Platform}-${Environment}/*'
+          - Effect: Allow
+            Action:
+              - 'elasticloadbalancing:DescribeRules'
+            Resource:
+              - '*'
+          - Effect: Allow
+            Action:
+              - 'elasticloadbalancing:ModifyRule'
+              - 'elasticloadbalancing:SetRulePriorities'
+            Resource:
+              - !Ref ListenerRuleRShiny
+          - Effect: Allow
+            Action:
+              - 'ec2:DescribeAvailabilityZones'
+            Resource:
+              - '*'
+      Roles:
+        - !Ref EC2InstanceRole
+  InstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      Path: /
+      Roles:
+        - !Ref EC2InstanceRole
+  ######| CloudWatch Alarms |#####
+  AlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: alex.nesteruk@edetek.com
+          Protocol: 'email'
+        - Endpoint: arkat.ussatayev@edetek.com
+          Protocol: 'email'
+        - Endpoint: alisher.serikali@edetek.com
+          Protocol: 'email'
+        - Endpoint: ramazan.zholdas@edetek.com
+          Protocol: 'email'
+      TopicName: !Sub '${Platform}-${Environment}-test-alarm'
+  #Shiny
+  RshinyHCAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Route53 Health Check alarm for the instance
+      Namespace: AWS/Route53
+      MetricName: HealthCheckStatus
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '1'
+      ComparisonOperator: LessThanThreshold
+      Threshold: '1'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+        - Name: HealthCheckId
+          Value: !Ref RshinyHC
+      OKActions:
+        - !Ref AlarmTopic
+  #InsideAlarms
+  LinuxRecoveryAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Trigger a recovery when instance status check fails for 15 consecutive minutes.
+      Namespace: AWS/EC2
+      MetricName: StatusCheckFailed_System
+      Statistic: Minimum
+      Period: '60'
+      EvaluationPeriods: '15'
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: '0'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref ApplicationASG
+      OKActions:
+        - !Ref AlarmTopic
+  LinuxInstanceAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Instance status check alarm
+        consecutive minutes.
+      Namespace: AWS/EC2
+      MetricName: StatusCheckFailed_Instance
+      Statistic: Minimum
+      Period: '60'
+      EvaluationPeriods: '15'
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: '0'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref ApplicationASG
+      OKActions:
+        - !Ref AlarmTopic
+  LinuxCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: CPU alarm for the instance
+      Namespace: AWS/EC2
+      MetricName: CPUUtilization
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '5'
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: '80'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref ApplicationASG
+      OKActions:
+        - !Ref AlarmTopic
+  LinuxRAMAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: RAM alarm for the instance
+      Namespace: !Sub '${Platform}-${Environment}'
+      MetricName: mem_used_percent
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '5'
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: '90'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref ApplicationASG
+      OKActions:
+        - !Ref AlarmTopic
+  LinuxDiskSpaceAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Disk space alarm
+      Namespace: !Sub '${Platform}-${Environment}'
+      MetricName: disk_used_percent
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 5
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: 80
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+        - Name: AutoScalingGroupName
+          Value: !Ref ApplicationASG
+      OKActions:
+        - !Ref AlarmTopic
+  #HealthChecks
+  RshinyHC:
+    Type: 'AWS::Route53::HealthCheck'
+    Properties:
+      HealthCheckConfig:
+        Port: '443'
+        Type: 'HTTPS'
+        FullyQualifiedDomainName: !Ref UIURL
+        RequestInterval: '30'
+        FailureThreshold: '3'
+        MeasureLatency: true
+      HealthCheckTags:
+        - Key: 'Name'
+          Value: !Sub '${Platform}-shiny-${Environment}'
+  SSMCloudWatchParameter:
+    Type: 'AWS::SSM::Parameter'
+    Properties:
+      Description: SSM Parameter for collecting logs and metrics from the apps.
+      Name: !Sub 'CloudWatchAgent-${Platform}-${Environment}-v0'
+      Type: String
+      Tier: Advanced
+      Value: |
+        {
+          "logs": {
+            "logs_collected": {
+              "files": {
+                "collect_list": [
+
+                  {
+                    "file_path": "/var/log/httpd/access_log",
+                    "log_group_name": "/edetek/PLATFORM_VAR/ENVIRONMENT_VAR/TIER_VAR",
+                    "log_stream_name": "PLATFORM_VAR-TIER_VAR-httpd-access_{instance_id}",
+                    "timezone": "UTC"
+                  },
+                  {
+                    "file_path": "/var/log/httpd/error_log",
+                    "log_group_name": "/edetek/PLATFORM_VAR/ENVIRONMENT_VAR/TIER_VAR",
+                    "log_stream_name": "PLATFORM_VAR-TIER_VAR-httpd-error_{instance_id}",
+                    "timezone": "UTC"
+                  },
+                  {
+                    "file_path": "/var/log/secure",
+                    "log_group_name": "/edetek/PLATFORM_VAR/ENVIRONMENT_VAR/system/TIER_VAR",
+                    "log_stream_name": "secure_{instance_id}",
+                    "timezone": "UTC"
+                  },
+                  {
+                    "file_path": "/var/log/messages",
+                    "log_group_name": "/edetek/PLATFORM_VAR/ENVIRONMENT_VAR/system/TIER_VAR",
+                    "log_stream_name": "messages_{instance_id}",
+                    "timezone": "UTC"
+                  },
+                  {
+                    "file_path": "/mnt/winShare/logs/*.log",
+                    "log_group_name": "/edetek/PLATFORM_VAR/ENVIRONMENT_VAR/TIER_VAR",
+                    "log_stream_name": "shinyapps_{instance_id}",
+                    "timezone": "UTC"
+                  },
+                  {
+                    "file_path": "/var/log/boot.log",
+                    "log_group_name": "/edetek/PLATFORM_VAR/ENVIRONMENT_VAR/system/TIER_VAR",
+                    "log_stream_name": "boot.log_{instance_id}",
+                    "timezone": "UTC"
+                  },
+                  {
+                    "file_path": "/var/log/dmesg",
+                    "log_group_name": "/edetek/PLATFORM_VAR/ENVIRONMENT_VAR/system/TIER_VAR",
+                    "log_stream_name": "dmesg_{instance_id}",
+                    "timezone": "UTC"
+                  },
+                  {
+                    "file_path": "/var/log/yum.log",
+                    "log_group_name": "/edetek/PLATFORM_VAR/ENVIRONMENT_VAR/system/TIER_VAR",
+                    "log_stream_name": "yum.log_{instance_id}",
+                    "timezone": "UTC"
+                  },
+                  {
+                    "file_path": "/var/log/cron",
+                    "log_group_name": "/edetek/PLATFORM_VAR/ENVIRONMENT_VAR/system/TIER_VAR",
+                    "log_stream_name": "cron_{instance_id}",
+                    "timezone": "UTC"
+                  },
+                  {
+                    "file_path": "/var/log/maillog",
+                    "log_group_name": "/edetek/PLATFORM_VAR/ENVIRONMENT_VAR/system/TIER_VAR",
+                    "log_stream_name": "maillog_{instance_id}",
+                    "timezone": "UTC"
+                  }
+                ]
+              }
+            },
+            "log_stream_name": "my_log_stream_name"
+          },
+          "metrics": {
+            "namespace": "PLATFORM_VAR-ENVIRONMENT_VAR",
+            "metrics_collected": {
+              "disk": {
+                "measurement": [
+                  "used_percent",
+                  {
+                    "name": "disk_free",
+                    "unit": "Gigabytes"
+                  }
+                ],
+                "metrics_collection_interval": 60,
+                "resources": [
+                  "/"
+                ]
+              },
+              "mem": {
+                "measurement": [
+                  {
+                    "name": "mem_free",
+                    "unit": "Megabytes"
+                  },
+                  {
+                    "name": "mem_used",
+                    "unit": "Megabytes"
+                  },
+                  "mem_used_percent"
+                ],
+                "metrics_collection_interval": 60
+              },
+              "swap": {
+                "measurement": [
+                  "swap_used_percent"
+                ],
+                "metrics_collection_interval": 60
+              }
+            }
+          }
+        }
+  CloudWatchAgentParameter:
+    Type: 'AWS::SSM::Parameter'
+    Properties:
+      Description: 'SSM Parameter which contains user-data parts'
+      Name: !Sub '${Platform}-${Environment}-cloudwatch-agent-v0'
+      Type: String
+      Tier: Advanced
+      Value: #!Base64
+        'Fn::Join':
+          - |+
+
+          - - source /home/ec2-user/.bashrc
+            - wget https://s3.amazonaws.com/amazoncloudwatch-agent/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm
+            - sudo rpm -U ./amazon-cloudwatch-agent.rpm
+            # configuration
+            - !Join [
+                '',
+                [
+                  'aws ssm get-parameter --name ',
+                  !Ref SSMCloudWatchParameter,
+                  ' --region ',
+                  !Ref 'AWS::Region',
+                  ' | jq --raw-output .Parameter.Value > ./amazon-cloudwatch-agent.json',
+                ],
+              ]
+            - sudo sed -i "s|PLATFORM_VAR|$PLATFORM|g" ./amazon-cloudwatch-agent.json
+            - sudo sed -i "s|TIER_VAR|$TIER|g" ./amazon-cloudwatch-agent.json
+            - !Join [
+                '',
+                [
+                  "sudo sed -i 's|ENVIRONMENT_VAR|",
+                  !Ref Environment,
+                  "|g' ./amazon-cloudwatch-agent.json",
+                ],
+              ]
+            - sudo mv ./amazon-cloudwatch-agent.json /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/amazon-cloudwatch-agent.json
+            - sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.d/amazon-cloudwatch-agent.json -s
+  ApacheInstallationParameter:
+    Type: 'AWS::SSM::Parameter'
+    Properties:
+      Description: 'SSM Parameter which contains user-data parts'
+      Name: !Sub '${Platform}-${Environment}-apache-installation-v2'
+      Type: String
+      Tier: Advanced
+      Value: #!Base64
+        'Fn::Join':
+          - |+
+
+          - - source /home/ec2-user/.bashrc
+            - PROXY_PATH=$1
+            - DOCUMENT_ROOT=$2
+            - sudo yum install -y httpd
+            - sudo yum install -y mod_proxy_html libxml2-devel
+            - sudo systemctl enable httpd.service
+            - sudo systemctl start httpd.service
+
+            - sudo sh -c "echo 'LoadModule proxy_module modules/mod_proxy.so' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo 'LoadModule proxy_http_module modules/mod_proxy_http.so' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo 'LoadModule proxy_wstunnel_module modules/mod_proxy_wstunnel.so' >> /etc/httpd/conf/httpd.conf"
+
+            - sudo sh -c "echo '<VirtualHost *:8080>' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo ' <Proxy *>' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo '   Require all granted' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo ' </Proxy>' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo ' RewriteEngine on' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo ' RewriteCond %{HTTP:Upgrade} =websocket [NC]' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo ' RewriteRule /(.*) ws://localhost:3838/\$1 [P,L]' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo ' RewriteCond %{HTTP:Upgrade} !=websocket [NC]' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo ' RewriteRule /(.*) http://localhost:3838/\$1 [P,L]' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo ' ProxyPass / http://localhost:3838/' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo ' ProxyPassReverse / http://localhost:3838/' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo ' ProxyRequests Off' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo ' <Directory "/var/www/html">' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo '  Require all granted' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo ' </Directory>' >> /etc/httpd/conf/httpd.conf"
+            - sudo sh -c "echo '</VirtualHost>' >> /etc/httpd/conf/httpd.conf"
+            - sudo printf 'Timeout 300' >> /etc/httpd/conf/httpd.conf
+            - sudo sed -i "s|Listen 80|Listen 8080|g" /etc/httpd/conf/httpd.conf
+            - sudo systemctl restart httpd
+  ######| S3                |#####
+  ELBLogsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${Platform}-${Environment}-elb-logs'
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+  ELBLogsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref ELBLogsBucket
+      PolicyDocument:
+        Statement:
+          - Sid: AllowELBToWriteLogs
+            Effect: Allow
+            Principal:
+              AWS:
+                - !Join [
+                    '',
+                    [
+                      !Sub 'arn:${AWS::Partition}:iam::',
+                      !FindInMap [ELBAccountId, !Ref AWS::Region, value],
+                      ':root',
+                    ],
+                  ]
+            Action:
+              - s3:PutObject
+            Resource:
+              - !Sub 'arn:${AWS::Partition}:s3:::${ELBLogsBucket}/*'
+          - Effect: Allow
+            Principal:
+              Service:
+                - delivery.logs.amazonaws.com
+            Action:
+              - s3:PutObject
+            Resource:
+              - !Sub 'arn:${AWS::Partition}:s3:::${ELBLogsBucket}/*'
+            Condition:
+              StringEquals:
+                s3:x-amz-acl: bucket-owner-full-control
+          - Effect: Allow
+            Principal:
+              Service:
+                - delivery.logs.amazonaws.com
+            Action:
+              - s3:GetBucketAcl
+            Resource:
+              - !Sub 'arn:${AWS::Partition}:s3:::${ELBLogsBucket}'
+  ######| EC2               |#####
+  LaunchConfigRShinyLinux2:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      IamInstanceProfile: !Ref InstanceProfile
+      AssociatePublicIpAddress: true
+      ImageId: !FindInMap [Linux2AMI, !Ref 'AWS::Region', AMI]
+      InstanceType: !Ref APIInstanceType
+      BlockDeviceMappings:
+        - DeviceName: '/dev/xvda'
+          Ebs:
+            VolumeSize: !Ref LinuxServerVolumeSize
+            Encrypted: true
+      KeyName: !Ref EC2KeyPairName
+      SecurityGroups:
+        - !Ref SecurityGroupWebServer
+      UserData: !Base64
+        'Fn::Join':
+          - |+
+
+          - - '#!/bin/bash'
+            - echo 'starting server'
+            - sudo yum update -y
+            - cd /home/ec2-user/
+            - echo APPLICATION_NAME_TAG=api >> .bashrc
+            - !Sub echo ENVIRONMENT=${Environment} >> .bashrc
+            - !Sub echo TARGET_GROUP_API_ARN=${ELBTargetGroup} >> .bashrc
+            - !Sub echo PLATFORM=${Platform} >> .bashrc
+            - echo LINUX2=true >> .bashrc
+            - echo TIER=api >> .bashrc
+            - echo APPLICATION_NAME=rshiny >> .bashrc
+            - source /home/ec2-user/.bashrc
+            #################SOFTWARE INSTALLATION##################
+            - sudo yum -y install jq
+            - sudo yum -y install cifs-utils
+            - sudo yum -y install logrotate
+            - sudo rpm --import https://cloud.r-project.org/bin/linux/ubuntu/marutter_pubkey.asc
+            - sudo amazon-linux-extras enable R4
+            - sudo yum install -y R
+            - sudo su - -c "R -e \"install.packages('httpuv', repos='https://cran.rstudio.com/')\""
+            - sudo su - -c "R -e \"install.packages('shiny', repos='https://cran.rstudio.com/')\""
+            - sudo yum install -y gdebi-core
+            - wget https://download3.rstudio.org/centos7/x86_64/shiny-server-1.5.20.1002-x86_64.rpm
+            - sudo yum install -y --nogpgcheck shiny-server-1.5.20.1002-x86_64.rpm
+            - sudo systemctl daemon-reload
+            - sudo systemctl enable shiny-server
+            - sudo systemctl start shiny-server
+            ######################SHARED DRIVE######################
+            - !Sub 'sudo mkdir ${LinuxServerLocalPath}'
+            - !Sub 'sudo chown -R shiny:shiny ${LinuxServerLocalPath}'
+            - !Sub 'sudo chmod -R 700 ${LinuxServerLocalPath}'
+            - !Sub 'mkdir ${LinuxServerLocalPath}/logs ${LinuxServerLocalPath}/shinyApps ${LinuxServerLocalPath}/data'
+            - !Sub 'sudo chown -R shiny:shiny ${LinuxServerLocalPath}/shinyApps'
+            - !Sub 'sudo chmod -R 700 ${LinuxServerLocalPath}/shinyApps'
+            - !Sub 'sudo chown -R shiny:shiny ${LinuxServerLocalPath}/logs'
+            - !Sub 'sudo chmod -R 700 ${LinuxServerLocalPath}/logs'
+            - !Sub 'sudo chown -R shiny:shiny ${LinuxServerLocalPath}/data'
+            - !Sub 'sudo chmod -R 700 ${LinuxServerLocalPath}/data'
+            - !Sub 'sudo sed -i "s|site_dir /srv/shiny-server;|site_dir ${LinuxServerLocalPath}/shinyApps;|g" /etc/shiny-server/shiny-server.conf'
+            - !Sub 'sudo sed -i "s|log_dir /var/log/shiny-server;|log_dir ${LinuxServerLocalPath}/logs;|g" /etc/shiny-server/shiny-server.conf'
+            - !Sub 'echo "${LinuxServerLocalPath}/logs/*.log {" | sudo tee /etc/logrotate.d/shiny-server-logs'
+            - sudo sh -c "echo '    weekly' >> /etc/logrotate.d/shiny-server-logs"
+            - sudo sh -c "echo '    rotate 7' >> /etc/logrotate.d/shiny-server-logs"
+            - sudo sh -c "echo '    compress' >> /etc/logrotate.d/shiny-server-logs"
+            - sudo sh -c "echo '    delaycompress' >> /etc/logrotate.d/shiny-server-logs"
+            - sudo sh -c "echo '    missingok' >> /etc/logrotate.d/shiny-server-logs"
+            - sudo sh -c "echo '    notifempty' >> /etc/logrotate.d/shiny-server-logs"
+            - sudo sh -c "echo '}' >> /etc/logrotate.d/shiny-server-logs"
+            - sudo chown root:root /etc/logrotate.d/shiny-server-logs
+            - sudo chmod 644 /etc/logrotate.d/shiny-server-logs
+            - sudo sh -c "echo '#!/bin/bash' > /etc/cron.daily/logrotate-shiny-server"
+            - sudo sh -c "echo '/usr/sbin/logrotate -s /var/lib/logrotate/status /etc/logrotate.d/shiny-server-logs' >> /etc/cron.daily/logrotate-shiny-server"
+            - sudo chmod +x /etc/cron.daily/logrotate-shiny-server
+            - sudo systemctl restart crond
+            - !Sub 'sudo mount -t cifs -o username=${WindowsShareUser},password=${WindowsSharePassword},domain=${WindowsShareDomain},uid=shiny ${WindowsShinyAppsLocation} ${LinuxServerLocalPath}/shinyApps'
+            - !Sub 'sudo mount -t cifs -o username=${WindowsShareUser},password=${WindowsSharePassword},domain=${WindowsShareDomain},uid=shiny ${WindowsShinyLogsLocation} ${LinuxServerLocalPath}/logs'
+            - !Sub 'sudo mount -t cifs -o username=${WindowsShareUser},password=${WindowsSharePassword},domain=${WindowsShareDomain},uid=shiny ${WindowsShinyDataLocation} ${LinuxServerLocalPath}/data'
+            - sudo systemctl restart shiny-server
+            #############CLOUDWATCH AGENT#######################
+            - wget https://s3.amazonaws.com/amazoncloudwatch-agent/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm
+            - sudo rpm -U ./amazon-cloudwatch-agent.rpm
+            - !Join [
+                '',
+                [
+                  'aws ssm get-parameter --name ',
+                  !Ref CloudWatchAgentParameter,
+                  ' --region ',
+                  !Ref 'AWS::Region',
+                  ' | jq --raw-output .Parameter.Value > ./cloudwatch-agent-parameter.sh',
+                ],
+              ]
+            - sudo sh cloudwatch-agent-parameter.sh
+            #############APACHE HARDENING#######################
+            - !Join [
+                '',
+                [
+                  'aws ssm get-parameter --name ',
+                  !Ref ApacheInstallationParameter,
+                  ' --region ',
+                  !Ref 'AWS::Region',
+                  ' | jq --raw-output .Parameter.Value > ./apache-hardening-parameter.sh',
+                ],
+              ]
+            - sudo sh apache-hardening-parameter.sh / /usr/share/tomcat/webapps/$APPLICATION_NAME
+  ApplicationASG:
+    UpdatePolicy:
+      AutoScalingRollingUpdate:
+        MinInstancesInService: 1
+        PauseTime: PT30S
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      HealthCheckType: 'EC2'
+      VPCZoneIdentifier:
+        - !Ref Subnet1
+        - !Ref Subnet2
+      LaunchConfigurationName: !Ref LaunchConfigRShinyLinux2
+      MaxSize: '2'
+      MinSize: '1'
+      DesiredCapacity: '1'
+      Tags:
+        - Key: Name
+          Value: !Sub '${Platform}-${Environment}-rshiny'
+          PropagateAtLaunch: true
+        - Key: Company
+          Value: !Ref Company
+          PropagateAtLaunch: true
+        - Key: Platform
+          Value: !Ref Platform
+          PropagateAtLaunch: true
+        - Key: Environment
+          Value: !Ref Environment
+          PropagateAtLaunch: true
+        - Key: Owner
+          Value: !Ref Owner
+          PropagateAtLaunch: true
+        - Key: Application
+          Value: rshiny
+          PropagateAtLaunch: true
+      TargetGroupARNs:
+        - !Ref ELBTargetGroup
+  ELBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckIntervalSeconds: 60
+      UnhealthyThresholdCount: 10
+      TargetType: instance
+      Port: 8080
+      Protocol: HTTP
+      VpcId: !Ref VPC
+      Name: !Sub '${Platform}-${Environment}-tg-api'
+      #TargetGroupAttributes:
+      #  - Key: stickiness.enabled
+      #    Value: true
+      #  - Key: stickiness.type
+      #    Value: lb_cookie
+      #  - Key: stickiness.lb_cookie.duration_seconds
+      #    Value: 7200
+  ######| ELB               |#####
+  ELBV2API:
+    DependsOn: ELBLogsBucketPolicy
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: !Sub '${Platform}-${Environment}-api-lb'
+      Scheme: internal
+      Subnets:
+        - !Ref Subnet1
+        - !Ref Subnet2
+      LoadBalancerAttributes:
+        - Key: idle_timeout.timeout_seconds
+          Value: '300'
+        - Key: 'access_logs.s3.enabled'
+          Value: 'true'
+        - Key: 'access_logs.s3.bucket'
+          Value: !Ref ELBLogsBucket
+        - Key: deletion_protection.enabled
+          Value: 'true'
+      SecurityGroups:
+        - !Ref SecurityGroupALB
+  ListenerELBAPI:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      Certificates:
+        - CertificateArn: !Ref AcmCertificate
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn:
+            Ref: ELBTargetGroup
+      LoadBalancerArn: !Ref ELBV2API
+      Port: '443'
+      Protocol: HTTPS
+  ListenerRuleRShiny:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref ELBTargetGroup
+      Conditions:
+        - Field: path-pattern
+          Values:
+            - '*'
+      ListenerArn: !Ref ListenerELBAPI
+      Priority: 2

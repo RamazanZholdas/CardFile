@@ -1,0 +1,19 @@
+{
+    "Parameters": {
+        "BucketName": "ramazans-lovely-bucket"
+    },
+    "Tags": {
+        "Name": "cicd-training"
+    },
+    "StackPolicy": {
+        "Statement": [
+            {
+                "Effect": "Allow",
+                "Action": "Update:*",
+                "Principal": "*",
+                "Resource": "*"
+            }
+        ]
+    }
+}
+

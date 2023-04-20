@@ -1,0 +1,11 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: example
+Parameters:
+  BucketName:
+    Type: String
+    Default: my-test-bucket
+Resources:
+  ExampleBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName

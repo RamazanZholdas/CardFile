@@ -1,0 +1,397 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: cf-deploy
+Parameters:
+  CFRepositoryName:
+    Type: String
+    Default: RamazansRepo
+  CFRepositoryBranch:
+    Description: Name of the CloudFormation CodeCommit repository branch for sce
+    Type: String
+    Default: main
+  Environment:
+    Description: Name of the environment. Must be unique per account. Must have the same value as a root sce stack
+    Type: String
+    Default: ramazans
+  TargetAccountId:
+    Description: ID of the account where the environment will be created.
+    Type: String
+    Default: '376775594025'
+  TargetAccountCFRoleArn:
+    Description: Role that allows CloudFormation to create resources in the target account.
+    Type: String
+    Default: arn:aws:iam::376775594025:role/ramazans-cloudformation-deployment-role
+Resources:
+  ##########| IAM Roles           |##########
+  BuildProjectRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${Environment}-codebuild-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: CodeBuildPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetBucketPolicy
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource:
+                  - !Sub arn:aws:s3:::${TemplateConfigsBucket}*
+                  - !Sub arn:aws:s3:::${NestedScriptsBucket}*
+                  - !Sub arn:aws:s3:::${PipelineBucket}*
+              - Effect: Allow
+                Action:
+                  - kms:*
+                Resource: !GetAtt EncryptionKey.Arn
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter*
+                Resource: !Sub arn:aws:ssm:*:${AWS::AccountId}:parameter/${Environment}*
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${Environment}-cf-codepipeline-role
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - codepipeline.amazonaws.com
+                - cloudformation.amazonaws.com
+              AWS:
+                - !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        #assume-role-policy
+        - PolicyName: !Sub ${Environment}-iam-access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'sts:AssumeRole'
+                Resource:
+                  - !Ref TargetAccountCFRoleArn
+                  - 'arn:aws:iam::376775594025:role/ramazans-cloudformation-deployment-role'
+        #s3-policy
+        - PolicyName: !Sub ${Environment}-s3-access
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:PutObject
+                  - s3:GetBucketPolicy
+                  - s3:GetObject
+                  - s3:ListBucket
+                Resource:
+                  - !Sub arn:aws:s3:::${PipelineBucket}*
+                  - !Sub arn:aws:s3:::${TemplateConfigsBucket}*
+                  - !Sub arn:aws:s3:::${NestedScriptsBucket}*
+        #logs-policy
+        - PolicyName: !Sub ${Environment}-cloudwatch-logs-access
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - arn:aws:logs:*:*:*
+        #kms-policy
+        - PolicyName: !Sub ${Environment}-kms-access
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - kms:DescribeKey
+                  - kms:GenerateDataKey*
+                  - kms:Encrypt
+                  - kms:ReEncrypt*
+                  - kms:Decrypt
+                Resource:
+                  - !GetAtt EncryptionKey.Arn
+        #codecommit-policy
+        - PolicyName: !Sub ${Environment}-codecommit-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - codecommit:ListBranches
+                  - codecommit:GitPull
+                  - codecommit:BatchGetRepositories
+                  - codecommit:ListPullRequests
+                  - codecommit:GetCommentsForPullRequest
+                  - codecommit:CancelUploadArchive
+                  - codecommit:GetFolder
+                  - codecommit:ListRepositories
+                  - codecommit:BatchGetPullRequests
+                  - codecommit:GetFile
+                  - codecommit:GetCommentsForComparedCommit
+                  - codecommit:GetCommit
+                  - codecommit:GetComment
+                  - codecommit:GetRepository
+                  - codecommit:GetBranch
+                  - codecommit:DescribePullRequestEvents
+                  - codecommit:GetPullRequest
+                  - codecommit:UploadArchive
+                  - codecommit:GetUploadArchiveStatus
+                Resource:
+                  - !Sub arn:aws:codecommit:*:*:${CFRepositoryName}
+        #codebuild-policy
+        - PolicyName: !Sub ${Environment}-codebuild-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - codebuild:StartBuild
+                  - codebuild:StopBuild
+                  - codebuild:BatchGetBuilds
+                  - codebuild:BatchGetProjects
+                Resource:
+                  - !GetAtt SCECfBuild.Arn
+        #cloudformation-policy
+        - PolicyName: !Sub ${Environment}-cloudformation-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudformation:CreateChangeSet
+                  - cloudformation:DeleteChangeSet
+                  - cloudformation:UpdateStack
+                  - cloudformation:DescribeChangeSet
+                  - cloudformation:ExecuteChangeSet
+                  - cloudformation:SetStackPolicy
+                  - cloudformation:DescribeStacks
+                  - cloudformation:CreateStack
+                  - cloudformation:DeleteStack
+                  - cloudformation:ValidateTemplate
+                Resource:
+                  - !Sub arn:aws:cloudformation:*:${AWS::AccountId}:stack/${Environment}-*
+  ##########| S3 Buckets          |##########
+  PipelineBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${Environment}-pipeline
+  PipelineBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref PipelineBucket
+      PolicyDocument:
+        Statement:
+          - Sid: AllowGetData
+            Effect: Allow
+            Principal:
+              AWS:
+                - !Sub arn:aws:iam::${AWS::AccountId}:root
+                - !GetAtt CodePipelineRole.Arn
+                - !Ref TargetAccountCFRoleArn
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+            Resource: !Sub arn:aws:s3:::${PipelineBucket}/*
+  TemplateConfigsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${Environment}-template-config
+  NestedScriptsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub ${Environment}-nested-scripts
+  NestedScriptsBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref NestedScriptsBucket
+      PolicyDocument:
+        Statement:
+          - Sid: AllowGetData
+            Effect: Allow
+            Principal:
+              AWS:
+                - !GetAtt CodePipelineRole.Arn
+                - !Ref TargetAccountCFRoleArn
+            Action:
+              - s3:GetObject
+            Resource: !Sub arn:aws:s3:::${NestedScriptsBucket}/*
+  ##########| KMS Key             |##########
+  EncryptionKey:
+    Type: AWS::KMS::Key
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      EnableKeyRotation: true
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: !Sub ${Environment}-cf-deploy
+        Statement:
+          - Sid: Allow administration of the key
+            Effect: Allow
+            Principal:
+              AWS:
+                - !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - kms:*
+            Resource: '*'
+          - Sid: Allows use of the key
+            Effect: Allow
+            Principal:
+              AWS:
+                - !Sub arn:aws:iam::${TargetAccountId}:root
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:DescribeKey
+            Resource: '*'
+  EncryptionKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub alias/${Environment}-cf-deploy-key
+      TargetKeyId: !Ref EncryptionKey
+  ##########| CF Pipeline         |##########
+  SCECfPipepline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      RoleArn: !GetAtt CodePipelineRole.Arn
+      Name: !Sub ${Environment}-cf
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: App
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Version: '1'
+                Provider: CodeCommit
+              Configuration:
+                RepositoryName: !Ref CFRepositoryName
+                BranchName: !Ref CFRepositoryBranch
+                PollForSourceChanges: false
+              OutputArtifacts:
+                - Name: MyApp
+              RunOrder: 1
+        - Name: Deployment
+          Actions:
+            - Name: Build
+              InputArtifacts:
+                - Name: MyApp
+              OutputArtifacts:
+                - Name: BuildOutput
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Version: '1'
+                Provider: CodeBuild
+              Configuration:
+                ProjectName: !Ref SCECfBuild
+              RunOrder: 1
+            - Name: CreateChangeSet
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: '1'
+                Provider: CloudFormation
+              Configuration:
+                ChangeSetName: !Sub ${Environment}
+                ActionMode: CHANGE_SET_REPLACE
+                StackName: !Sub ${Environment}
+                Capabilities: CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+                TemplatePath: BuildOutput::template.yaml
+                TemplateConfiguration: !Sub BuildOutput::${Environment}-template-config.json
+                RoleArn: !Ref TargetAccountCFRoleArn
+              InputArtifacts:
+                - Name: BuildOutput
+              RunOrder: 2
+              RoleArn: !Ref TargetAccountCFRoleArn
+            - Name: Approval
+              ActionTypeId:
+                Category: Approval
+                Owner: AWS
+                Version: '1'
+                Provider: Manual
+              RunOrder: 3
+            - Name: DeployChangeSet
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Version: '1'
+                Provider: CloudFormation
+              Configuration:
+                ChangeSetName: !Sub ${Environment}
+                ActionMode: CHANGE_SET_EXECUTE
+                StackName: !Sub ${Environment}
+                RoleArn: !Ref TargetAccountCFRoleArn
+              InputArtifacts:
+                - Name: BuildOutput
+              RunOrder: 4
+              RoleArn: !Ref TargetAccountCFRoleArn
+      ArtifactStores:
+        - Region: !Sub ${AWS::Region}
+          ArtifactStore:
+            Type: S3
+            Location: !Sub ${PipelineBucket}
+            EncryptionKey:
+              Id: !GetAtt EncryptionKey.Arn
+              Type: KMS
+  ##########| CF Build            |##########
+  SCECfBuild:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub ${Environment}-cf-build
+      ServiceRole: !Ref BuildProjectRole
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/amazonlinux2-x86_64-standard:4.0
+        EnvironmentVariables:
+          - Name: ENVIRONMENT
+            Value: !Ref Environment
+          - Name: NESTED_SCRIPTS_BUCKET
+            Value: !Ref NestedScriptsBucket
+          - Name: TEMPLATE_CONFIGS_BUCKET
+            Value: !Ref TemplateConfigsBucket
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: |
+          version: 0.2
+          phases:
+            build:
+              commands:
+                - ls -la
+                - aws s3 cp . s3://${NESTED_SCRIPTS_BUCKET}/ --recursive
+                - aws s3 cp s3://${TEMPLATE_CONFIGS_BUCKET}/${ENVIRONMENT}-template-config.json ./
+          artifacts:
+            files:
+               - ./${ENVIRONMENT}-template-config.json
+               - ./template.yaml
+      EncryptionKey: !GetAtt EncryptionKey.Arn

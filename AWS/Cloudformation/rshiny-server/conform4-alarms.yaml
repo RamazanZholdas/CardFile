@@ -1,0 +1,621 @@
+Parameters:
+  ASGConform4API:
+    Type: String
+  ASGConform4UI:
+    Type: String
+  DatabaseCluster:
+    Type: String
+  Environment:
+    Type: String
+  Conform4APIURL:
+    Type: String
+  Conform4UIURL:
+    Type: String
+  ApplicationNameSYSUI:
+    Type: String
+  ApplicationNameDSPUI:
+    Type: String
+  ApplicationNameMDRUI:
+    Type: String
+  ApplicationNameTLFUI:
+    Type: String
+  ApplicationNameADAMUI:
+    Type: String
+  ApplicationNameSYSAPI:
+    Type: String
+  ApplicationNameDSPAPI:
+    Type: String
+  ApplicationNameMDRAPI:
+    Type: String
+  ApplicationNameTLFAPI:
+    Type: String
+  ApplicationNameADAMAPI:
+    Type: String
+  ApplicationNameSASAPI:
+    Type: String
+  WindowsInstanceDNS:
+    Type: String
+  LambdaTeamsNotificationCenterArn:
+    Type: String
+Resources:
+#SNS Topics
+  AlarmTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: conform4.alerts@edetek.com
+          Protocol: "email"
+        - Endpoint: beijing.development.team@edetek.com
+          Protocol: "email"
+        - Endpoint: haicui.wang@edetek.com
+          Protocol: "email"
+        - Endpoint: jing.liu@edetek.com
+          Protocol: "email"
+        - Endpoint: xiaowu.qin@edetek.com
+          Protocol: "email"
+        - Endpoint: zuobang.zhang@edetek.com
+          Protocol: "email"
+        - Endpoint: qinmao.zhu@edetek.com
+          Protocol: "email"
+        - Endpoint: ziwei.miao@edetek.com
+          Protocol: "email"
+        - Endpoint: james.song@edetek.com
+          Protocol: "email"
+        - Endpoint: dong.zhou@edetek.com
+          Protocol: "email"
+        - Endpoint: wei.pei@edetek.com
+          Protocol: "email"
+        - Endpoint: !Ref LambdaTeamsNotificationCenterArn
+          Protocol: lambda
+      TopicName: !Sub "conform4-${Environment}-alarm"
+#Conform4API
+  Conform4SYSAPIHCAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Route53 Health Check alarm for the instance
+      Namespace: AWS/Route53
+      MetricName: HealthCheckStatus
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '1'
+      ComparisonOperator: LessThanThreshold
+      Threshold: '1'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: HealthCheckId
+        Value: !Ref Conform4SYSAPIHC
+      OKActions:
+        - !Ref AlarmTopic
+  Conform4MDRAPIHCAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Route53 Health Check alarm for the instance
+      Namespace: AWS/Route53
+      MetricName: HealthCheckStatus
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '1'
+      ComparisonOperator: LessThanThreshold
+      Threshold: '1'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: HealthCheckId
+        Value: !Ref Conform4MDRAPIHC
+      OKActions:
+        - !Ref AlarmTopic
+  Conform4DSPAPIHCAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Route53 Health Check alarm for the instance
+      Namespace: AWS/Route53
+      MetricName: HealthCheckStatus
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '1'
+      ComparisonOperator: LessThanThreshold
+      Threshold: '1'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: HealthCheckId
+        Value: !Ref Conform4DSPAPIHC
+      OKActions:
+        - !Ref AlarmTopic
+  Conform4TLFAPIHCAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Route53 Health Check alarm for the instance
+      Namespace: AWS/Route53
+      MetricName: HealthCheckStatus
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '1'
+      ComparisonOperator: LessThanThreshold
+      Threshold: '1'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: HealthCheckId
+        Value: !Ref Conform4TLFAPIHC
+      OKActions:
+        - !Ref AlarmTopic
+  Conform4ADAMAPIHCAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Route53 Health Check alarm for the instance
+      Namespace: AWS/Route53
+      MetricName: HealthCheckStatus
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '1'
+      ComparisonOperator: LessThanThreshold
+      Threshold: '1'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: HealthCheckId
+        Value: !Ref Conform4ADAMAPIHC
+      OKActions:
+        - !Ref AlarmTopic
+  Conform4SASAPIHCAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Route53 Health Check alarm for the instance
+      Namespace: AWS/Route53
+      MetricName: HealthCheckStatus
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '1'
+      ComparisonOperator: LessThanThreshold
+      Threshold: '1'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: HealthCheckId
+        Value: !Ref Conform4SASAPIHC
+      OKActions:
+        - !Ref AlarmTopic
+  Conform4APIRecoveryAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Trigger a recovery when instance status check fails for 15
+        consecutive minutes.
+      Namespace: AWS/EC2
+      MetricName: StatusCheckFailed_System
+      Statistic: Minimum
+      Period: '60'
+      EvaluationPeriods: '15'
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: '0'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref ASGConform4API
+      OKActions:
+        - !Ref AlarmTopic
+  Conform4APIInstanceAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Instance status check alarm
+        consecutive minutes.
+      Namespace: AWS/EC2
+      MetricName: StatusCheckFailed_Instance
+      Statistic: Minimum
+      Period: '60'
+      EvaluationPeriods: '15'
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: '0'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref ASGConform4API
+      OKActions:
+        - !Ref AlarmTopic
+  Conform4APICPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: CPU alarm for the instance
+      Namespace: AWS/EC2
+      MetricName: CPUUtilization
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '5'
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: '80'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref ASGConform4API
+      OKActions:
+        - !Ref AlarmTopic
+  Conform4APIRAMAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: RAM alarm for the instance
+      Namespace: !Sub "conform4-${Environment}"
+      MetricName: mem_used_percent
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '5'
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: '90'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref ASGConform4API
+      OKActions:
+        - !Ref AlarmTopic
+  Conform4APIDiskSpaceAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Disk space alarm
+      Namespace: !Sub "conform4-${Environment}"
+      MetricName: disk_used_percent
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 5
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: 80
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref ASGConform4API
+      OKActions:
+        - !Ref AlarmTopic
+  Conform4SYSAPIHC:
+    Type: "AWS::Route53::HealthCheck"
+    Properties:
+      HealthCheckConfig:
+        Port: "443"
+        Type: "HTTPS"
+        ResourcePath: !Sub "/${ApplicationNameSYSAPI}/"
+        FullyQualifiedDomainName: !Ref Conform4APIURL
+        RequestInterval: "30"
+        FailureThreshold: "3"
+        MeasureLatency: true
+      HealthCheckTags:
+        -
+          Key: "Name"
+          Value: !Sub "conform4-sys-api-${Environment}"
+  Conform4MDRAPIHC:
+    Type: "AWS::Route53::HealthCheck"
+    Properties:
+      HealthCheckConfig:
+        Port: "443"
+        Type: "HTTPS"
+        ResourcePath: !Sub "/${ApplicationNameMDRAPI}/"
+        FullyQualifiedDomainName: !Ref Conform4APIURL
+        RequestInterval: "30"
+        FailureThreshold: "3"
+        MeasureLatency: true
+      HealthCheckTags:
+        -
+          Key: "Name"
+          Value: !Sub "conform4-mdr-api-${Environment}"
+  Conform4DSPAPIHC:
+    Type: "AWS::Route53::HealthCheck"
+    Properties:
+      HealthCheckConfig:
+        Port: "443"
+        Type: "HTTPS"
+        ResourcePath: !Sub "/${ApplicationNameDSPAPI}/"
+        FullyQualifiedDomainName: !Ref Conform4APIURL
+        RequestInterval: "30"
+        FailureThreshold: "3"
+        MeasureLatency: true
+      HealthCheckTags:
+        -
+          Key: "Name"
+          Value: !Sub "conform4-dsp-api-${Environment}"
+  Conform4TLFAPIHC:
+    Type: "AWS::Route53::HealthCheck"
+    Properties:
+      HealthCheckConfig:
+        Port: "443"
+        Type: "HTTPS"
+        ResourcePath: !Sub "/${ApplicationNameTLFAPI}/health/status"
+        FullyQualifiedDomainName: !Ref Conform4APIURL
+        RequestInterval: "30"
+        FailureThreshold: "3"
+        MeasureLatency: true
+      HealthCheckTags:
+        -
+          Key: "Name"
+          Value: !Sub "conform4-tlf-api-${Environment}"
+  Conform4ADAMAPIHC:
+    Type: "AWS::Route53::HealthCheck"
+    Properties:
+      HealthCheckConfig:
+        Port: "443"
+        Type: "HTTPS"
+        ResourcePath: !Sub "/${ApplicationNameADAMAPI}/v4.0/solutions"
+        FullyQualifiedDomainName: !Ref Conform4APIURL
+        RequestInterval: "30"
+        FailureThreshold: "3"
+        MeasureLatency: true
+      HealthCheckTags:
+        -
+          Key: "Name"
+          Value: !Sub "conform4-adam-api-${Environment}"
+  Conform4SASAPIHC:
+    Type: "AWS::Route53::HealthCheck"
+    Properties:
+      HealthCheckConfig:
+        Port: "80"
+        Type: "HTTP"
+        ResourcePath: !Sub "/${ApplicationNameSASAPI}/"
+        FullyQualifiedDomainName: !Ref WindowsInstanceDNS
+        RequestInterval: "30"
+        FailureThreshold: "3"
+        MeasureLatency: true
+        Regions:
+          - us-east-1
+          - ap-northeast-1
+          - eu-west-1
+      HealthCheckTags:
+        -
+          Key: "Name"
+          Value: !Sub "conform4-sas-api-${Environment}"
+#Conform4UI
+  Conform4SYSUIHCAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Route53 Health Check alarm for the instance
+      Namespace: AWS/Route53
+      MetricName: HealthCheckStatus
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '1'
+      ComparisonOperator: LessThanThreshold
+      Threshold: '1'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: HealthCheckId
+        Value: !Ref Conform4SYSUIHC
+  Conform4MDRUIHCAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Route53 Health Check alarm for the instance
+      Namespace: AWS/Route53
+      MetricName: HealthCheckStatus
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '1'
+      ComparisonOperator: LessThanThreshold
+      Threshold: '1'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: HealthCheckId
+        Value: !Ref Conform4MDRUIHC
+  Conform4DSPUIHCAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Route53 Health Check alarm for the instance
+      Namespace: AWS/Route53
+      MetricName: HealthCheckStatus
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '1'
+      ComparisonOperator: LessThanThreshold
+      Threshold: '1'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: HealthCheckId
+        Value: !Ref Conform4DSPUIHC
+  Conform4TLFUIHCAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Route53 Health Check alarm for the instance
+      Namespace: AWS/Route53
+      MetricName: HealthCheckStatus
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '1'
+      ComparisonOperator: LessThanThreshold
+      Threshold: '1'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: HealthCheckId
+        Value: !Ref Conform4TLFUIHC
+  Conform4ADAMUIHCAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Route53 Health Check alarm for the instance
+      Namespace: AWS/Route53
+      MetricName: HealthCheckStatus
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '1'
+      ComparisonOperator: LessThanThreshold
+      Threshold: '1'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: HealthCheckId
+        Value: !Ref Conform4ADAMUIHC
+  Conform4UIRecoveryAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Trigger a recovery when instance status check fails for 15
+        consecutive minutes.
+      Namespace: AWS/EC2
+      MetricName: StatusCheckFailed_System
+      Statistic: Minimum
+      Period: '60'
+      EvaluationPeriods: '15'
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: '0'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref ASGConform4UI
+  Conform4UIInstanceAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Instance status check alarm
+        consecutive minutes.
+      Namespace: AWS/EC2
+      MetricName: StatusCheckFailed_Instance
+      Statistic: Minimum
+      Period: '60'
+      EvaluationPeriods: '15'
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: '0'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref ASGConform4UI
+  Conform4UICPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: CPU alarm for the instance
+      Namespace: AWS/EC2
+      MetricName: CPUUtilization
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '5'
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: '80'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref ASGConform4UI
+  Conform4UIRAMAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: CPU alarm for the instance
+      Namespace: !Sub "conform4-${Environment}"
+      MetricName: mem_used_percent
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '5'
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: '80'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref ASGConform4UI
+  Conform4UIDiskSpaceAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Disk space alarm
+      Namespace: !Sub "conform4-${Environment}"
+      MetricName: disk_used_percent
+      Statistic: Average
+      Period: 60
+      EvaluationPeriods: 5
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: 80
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: AutoScalingGroupName
+        Value: !Ref ASGConform4UI
+  Conform4SYSUIHC:
+    Type: "AWS::Route53::HealthCheck"
+    Properties:
+      HealthCheckConfig:
+        Port: "443"
+        Type: "HTTPS"
+        ResourcePath: !Sub "/${ApplicationNameSYSUI}/login/login.html"
+        FullyQualifiedDomainName: !Ref Conform4UIURL
+        RequestInterval: "30"
+        FailureThreshold: "3"
+        MeasureLatency: true
+      HealthCheckTags:
+        -
+          Key: "Name"
+          Value: !Sub "conform4-sys-ui-${Environment}"
+  Conform4MDRUIHC:
+    Type: "AWS::Route53::HealthCheck"
+    Properties:
+      HealthCheckConfig:
+        Port: "443"
+        Type: "HTTPS"
+        ResourcePath: !Sub "/${ApplicationNameMDRUI}/index/index.html"
+        FullyQualifiedDomainName: !Ref Conform4UIURL
+        RequestInterval: "30"
+        FailureThreshold: "3"
+        MeasureLatency: true
+      HealthCheckTags:
+        -
+          Key: "Name"
+          Value: !Sub "conform4-mdr-ui-${Environment}"
+  Conform4DSPUIHC:
+    Type: "AWS::Route53::HealthCheck"
+    Properties:
+      HealthCheckConfig:
+        Port: "443"
+        Type: "HTTPS"
+        ResourcePath: !Sub "/${ApplicationNameDSPUI}/index/index.html"
+        FullyQualifiedDomainName: !Ref Conform4UIURL
+        RequestInterval: "30"
+        FailureThreshold: "3"
+        MeasureLatency: true
+      HealthCheckTags:
+        -
+          Key: "Name"
+          Value: !Sub "conform4-dsp-ui-${Environment}"
+  Conform4TLFUIHC:
+    Type: "AWS::Route53::HealthCheck"
+    Properties:
+      HealthCheckConfig:
+        Port: "443"
+        Type: "HTTPS"
+        ResourcePath: !Sub "/${ApplicationNameTLFUI}/entry.html"
+        FullyQualifiedDomainName: !Ref Conform4UIURL
+        RequestInterval: "30"
+        FailureThreshold: "3"
+        MeasureLatency: true
+      HealthCheckTags:
+        -
+          Key: "Name"
+          Value: !Sub "conform4-tlf-ui-${Environment}"
+  Conform4ADAMUIHC:
+    Type: "AWS::Route53::HealthCheck"
+    Properties:
+      HealthCheckConfig:
+        Port: "443"
+        Type: "HTTPS"
+        ResourcePath: !Sub "/${ApplicationNameADAMUI}/index/index.html"
+        FullyQualifiedDomainName: !Ref Conform4UIURL
+        RequestInterval: "30"
+        FailureThreshold: "3"
+        MeasureLatency: true
+      HealthCheckTags:
+        -
+          Key: "Name"
+          Value: !Sub "conform4-adam-ui-${Environment}"
+#Database
+  DatabaseWriterCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription:  CPU alarm for the DB
+      Namespace: AWS/RDS
+      MetricName: CPUUtilization
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '5'
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: '80'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: DBClusterIdentifier
+        Value: !Ref DatabaseCluster
+      - Name: Role
+        Value: WRITER
+      OKActions:
+        - !Ref AlarmTopic
+  DatabaseReaderCPUAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: CPU alarm for the DB
+      Namespace: AWS/RDS
+      MetricName: CPUUtilization
+      Statistic: Average
+      Period: '60'
+      EvaluationPeriods: '5'
+      ComparisonOperator: GreaterThanThreshold
+      Threshold: '80'
+      AlarmActions: [!Ref AlarmTopic]
+      Dimensions:
+      - Name: DBClusterIdentifier
+        Value: !Ref DatabaseCluster
+      - Name: Role
+        Value: READER
+      OKActions:
+        - !Ref AlarmTopic
