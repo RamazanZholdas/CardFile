@@ -1,0 +1,220 @@
+AWS Resource Explorer
+AWS Data Exchange
+AWS Elemental MediaConnect
+AWS IoT Wireless
+Amazon DynamoDB Accelerator (DAX)
+Amazon Route 53 Recovery Controls
+Amazon Macie
+AWS Network Manager
+AWS CodeCommit
+AWS Cost Explorer Service
+AWS Identity and Access Management
+Amazon Elastic File System
+AWS Consolidated Billing
+Amazon Keyspaces (for Apache Cassandra)
+AWS CodeStar Notifications
+Amazon GuardDuty
+Amazon Redshift Data API
+Amazon EC2
+AWS Organizations
+Amazon EventBridge
+AWS Auto Scaling
+Amazon Detective
+AWS CloudHSM
+Amazon EMR on EKS (EMR Containers)
+Amazon Kinesis Data Streams
+Amazon Nimble Studio
+AWS CodePipeline
+AWS OpsWorks
+Amazon EC2 Image Builder
+Amazon CloudWatch Application Insights
+Amazon Rekognition
+AWS Backup Gateway
+AWS Lambda
+AWS Recycle Bin
+Amazon CodeGuru Reviewer
+Amazon FSx
+Amazon EventBridge Scheduler
+Amazon GameLift
+AWS Cloud9
+AWS App Runner
+AWS Billing Console
+AWS OpsWorks Configuration Management
+AWS Systems Manager
+Amazon Mobile Analytics
+Amazon Cognito Identity
+Amazon S3 Object Lambda
+Amazon FreeRTOS
+Amazon Chime
+Amazon Kendra
+AWS Identity Sync
+AWS IoT Events
+AWS Health APIs and Notifications
+Amazon Lightsail
+Amazon QuickSight
+Amazon Braket
+Amazon CodeGuru Profiler
+AWS Amplify
+AWS CodeStar Connections
+Amazon AppFlow
+AWS Key Management Service
+Amazon OpenSearch Service
+Amazon Interactive Video Service Chat
+Amazon EventBridge Pipes
+AWS IoT Greengrass
+Amazon CloudWatch Observability Access Manager
+Amazon Elastic Kubernetes Service
+Amazon MemoryDB
+AWS Config
+AWS Clean Rooms
+Amazon Kinesis Firehose
+AWS RoboMaker
+Amazon Textract
+Amazon Managed Blockchain
+AWS CodeDeploy
+Amazon Route 53 Application Recovery Controller - Zonal Shift
+AWS Resource Groups
+AWS Private Certificate Authority
+Amazon Machine Learning
+AWS Secrets Manager
+Amazon Route 53 Domains
+AWS Purchase Orders Console
+AWS Fault Injection Simulator
+AWS AppSync
+AWS Billing Conductor
+AWS Migration Hub Refactor Spaces
+Amazon Inspector2
+Alexa for Business
+AWS Elemental MediaPackage VOD
+AWS Database Migration Service
+Amazon Managed Streaming for Apache Kafka
+AWS Invoicing Service
+Elastic Load Balancing
+AWS Ground Station
+Amazon CloudWatch Logs
+AWS Performance Insights
+AWS Network Firewall
+AWS IoT
+Amazon Route 53 Resolver
+AWS Elemental MediaPackage
+Amazon Data Lifecycle Manager
+AWS Resource Access Manager
+AWS Device Farm
+AWS CloudWatch RUM
+AWS Elemental MediaConvert
+AWS Account Management
+Amazon API Gateway
+AWS Application Auto Scaling
+AWS CodeArtifact
+Amazon CloudWatch
+Amazon MQ
+AWS License Manager
+Amazon QLDB
+AWS Step Functions
+Amazon Elastic Container Registry
+AWS Direct Connect
+Amazon Cloud Directory
+AWS App Mesh
+Amazon Redshift
+AWS DeepComposer
+Amazon EventBridge Schemas
+Amazon Elastic Container Service
+AWS IoT RoboRunner
+AWS Payments
+Amazon Kinesis Video Streams
+AWS Billing
+Amazon Cognito Sync
+AWS Outposts
+AWS Glue DataBrew
+Amazon Fraud Detector
+Amazon CloudSearch
+AWS Elastic Disaster Recovery
+AWS Firewall Manager
+AWS CloudTrail
+AWS Batch
+AWS Elastic Beanstalk
+Amazon Monitron
+Amazon Resource Group Tagging API
+AWS Resilience Hub Service
+Amazon CloudWatch Internet Monitor
+AWS Elemental MediaLive
+AWS IAM Access Analyzer
+AWS Global Accelerator
+Amazon Managed Workflows for Apache Airflow
+AWS IoT Analytics
+Amazon Interactive Video Service
+AWS Support
+Amazon Lookout for Equipment
+AWS X-Ray
+Amazon DynamoDB
+AWS IoT Fleet Hub for Device Management
+AWS IoT FleetWise
+Amazon SES
+Amazon Lookout for Vision
+AWS Budget Service
+Amazon Personalize
+Amazon Managed Grafana
+Amazon RDS
+Amazon CloudFront
+Amazon Comprehend Medical
+AWS AppConfig
+Amazon Connect
+AWS Glue
+Amazon Route 53 Recovery Readiness
+Amazon SNS
+AWS Data Pipeline
+AWS Migration Hub
+AWS Serverless Application Repository
+AWS CodeStar
+Amazon SQS
+Amazon Inspector
+AWS Certificate Manager
+AWS Audit Manager
+Amazon Cognito User Pools
+AWS Identity Store Auth
+Amazon Managed Streaming for Kafka Connect
+Amazon CloudWatch Evidently
+AWS Chatbot
+AWS Proton
+Amazon S3 Glacier
+Amazon Pinpoint
+Amazon Route 53 Recovery Cluster
+Amazon Elastic Container Registry Public
+Manage - Amazon API Gateway
+AWS IoT 1-Click
+AWS Application Migration Service
+Amazon GameSparks
+AWS CloudFormation
+Amazon Lex
+Amazon Managed Service for Prometheus
+Amazon ElastiCache
+Amazon Kinesis Analytics
+AWS Application Discovery Service
+Amazon Forecast
+AWS Artifact
+Amazon EC2 Auto Scaling
+AWS Backup
+Amazon Polly
+AWS Elemental Appliances and Software
+Amazon HealthLake
+AWS DataSync
+AWS Mainframe Modernization Service
+Amazon Elastic MapReduce
+AWS Compute Optimizer
+Amazon AppStream 2.0
+Amazon Message Delivery Service
+AWS Import Export
+Amazon Route 53
+Amazon S3
+AWS CodeBuild
+Amazon Comprehend
+Amazon Elastic Inference
+AWS Free Tier
+AWS IoT SiteWise
+Amazon Lookout for Metrics
+Amazon Elastic Transcoder
+AWS Security Token Service
+AWS Directory Service
+Amazon DevOps Guru
+Amazon Athena
+AWS Elemental MediaStore

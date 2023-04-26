@@ -1,0 +1,751 @@
+Repository: audit-log
+Tag value: None
+Repository: conform-innovations
+Tag value: None
+Repository: conform5-adam-api
+Tag value: None
+Repository: conform5-adam-ui
+Tag value: None
+Repository: conform5-adm-api
+Tag value: adm
+Repository: conform5-adm-ui
+Tag value: adm
+Repository: conform5-adm-ui-tests
+Tag value: architect
+Repository: conform5-aggregator-api
+Tag value: None
+Repository: conform5-alert-engine-templates
+Tag value: iq
+Repository: conform5-api-verification
+Tag value: architect
+Repository: conform5-assets-ui
+Tag value: architect
+Repository: conform5-auth-ui-tests
+Tag value: architect
+Repository: conform5-batch-audit-to-redshift-migration
+Tag value: batch
+Repository: conform5-batch-data-provider-id-population
+Tag value: batch
+Repository: conform5-batch-domains-migration
+Tag value: batch
+Repository: conform5-batch-records-trail-mapping-id-population
+Tag value: batch
+Repository: conform5-batch-records-trail-to-redshift
+Tag value: batch
+Repository: conform5-batch-sas-templates
+Tag value: None
+Repository: conform5-batch-tools
+Tag value: None
+Repository: conform5-batch-unique-record-id-migration
+Tag value: None
+Repository: conform5-bpo-api
+Tag value: batch
+Repository: conform5-bse-api
+Tag value: None
+Repository: conform5-bvo-api
+Tag value: None
+Repository: conform5-bxp-api
+Tag value: batch
+Repository: conform5-cb-rule-templates
+Tag value: batch
+Repository: conform5-cdl-api
+Tag value: cdl
+Repository: conform5-cdl-ui
+Tag value: cdl
+Repository: conform5-cdl-ui-tests
+Tag value: architect
+Repository: conform5-clo-api
+Tag value: clo
+Repository: conform5-codecommit-automation-scripts
+Tag value: None
+Repository: conform5-common
+Tag value: common
+Repository: conform5-common-angular
+Tag value: architect
+Repository: conform5-common-batch
+Tag value: batch
+Repository: conform5-common-cx
+Tag value: integrations
+Repository: conform5-common-iq
+Tag value: iq
+Repository: conform5-common-java
+Tag value: common-java
+Repository: conform5-common-java-lambda
+Tag value: common-java
+Repository: conform5-common-java-test
+Tag value: common-java
+Repository: conform5-common-login-angular
+Tag value: architect
+Repository: conform5-common-mdr
+Tag value: mdr
+Repository: conform5-common-mdr-java
+Tag value: mdr
+Repository: conform5-common-nodejs
+Tag value: architect
+Repository: conform5-common-test
+Tag value: None
+Repository: conform5-common-ui
+Tag value: common
+Repository: conform5-cross-app-migrations
+Tag value: db
+Repository: conform5-ctms-api
+Tag value: None
+Repository: conform5-ctms-ui
+Tag value: None
+Repository: conform5-cx-api
+Tag value: integrations
+Repository: conform5-cx-automation-scripts
+Tag value: integrations
+Repository: conform5-cx-devkit
+Tag value: integrations
+Repository: conform5-cx-lambda
+Tag value: integrations
+Repository: conform5-cx-native-libraries
+Tag value: architect
+Repository: conform5-cx-ndi
+Tag value: integrations
+Repository: conform5-cx-task-integrations-actigraph-puller
+Tag value: integrations
+Repository: conform5-cx-task-integrations-add-characters
+Tag value: integrations
+Repository: conform5-cx-task-integrations-add-md5-column
+Tag value: integrations
+Repository: conform5-cx-task-integrations-aggregate-subject-to-site
+Tag value: integrations
+Repository: conform5-cx-task-integrations-audit-action-report
+Tag value: integrations
+Repository: conform5-cx-task-integrations-check-file-header
+Tag value: integrations
+Repository: conform5-cx-task-integrations-concat-site-to-sub
+Tag value: integrations
+Repository: conform5-cx-task-integrations-covance
+Tag value: integrations
+Repository: conform5-cx-task-integrations-covance-report
+Tag value: integrations
+Repository: conform5-cx-task-integrations-csv-add-siteid
+Tag value: integrations
+Repository: conform5-cx-task-integrations-csv-nullvalues
+Tag value: integrations
+Repository: conform5-cx-task-integrations-csv-pipe-to-comma
+Tag value: integrations
+Repository: conform5-cx-task-integrations-csv-rmemptyrows
+Tag value: integrations
+Repository: conform5-cx-task-integrations-csv-rmrownumbers
+Tag value: integrations
+Repository: conform5-cx-task-integrations-csv-rmstudyid
+Tag value: integrations
+Repository: conform5-cx-task-integrations-csv-rownumber
+Tag value: integrations
+Repository: conform5-cx-task-integrations-csv-siteid
+Tag value: integrations
+Repository: conform5-cx-task-integrations-csv-subjectid
+Tag value: integrations
+Repository: conform5-cx-task-integrations-csv-to-txt
+Tag value: integrations
+Repository: conform5-cx-task-integrations-csv-uniquerows
+Tag value: integrations
+Repository: conform5-cx-task-integrations-csv-uniquerows2
+Tag value: integrations
+Repository: conform5-cx-task-integrations-dmw
+Tag value: integrations
+Repository: conform5-cx-task-integrations-ehr-all-patients-puller
+Tag value: integrations
+Repository: conform5-cx-task-integrations-ehr-iq-xml
+Tag value: integrations
+Repository: conform5-cx-task-integrations-ert-processor
+Tag value: integrations
+Repository: conform5-cx-task-integrations-ert-puller
+Tag value: integrations
+Repository: conform5-cx-task-integrations-file-merge
+Tag value: integrations
+Repository: conform5-cx-task-integrations-formrefname-derivation
+Tag value: integrations
+Repository: conform5-cx-task-integrations-ftp-puller
+Tag value: integrations
+Repository: conform5-cx-task-integrations-geneactiv
+Tag value: integrations
+Repository: conform5-cx-task-integrations-generate-single-zip
+Tag value: integrations
+Repository: conform5-cx-task-integrations-inform-iq-xml
+Tag value: integrations
+Repository: conform5-cx-task-integrations-inform-subject-enrollment
+Tag value: integrations
+Repository: conform5-cx-task-integrations-inform-subjects
+Tag value: integrations
+Repository: conform5-cx-task-integrations-iq-cdl-data-clear
+Tag value: integrations
+Repository: conform5-cx-task-integrations-mskcc-puller
+Tag value: integrations
+Repository: conform5-cx-task-integrations-ntt-processor
+Tag value: integrations
+Repository: conform5-cx-task-integrations-rave-audit-data-processor
+Tag value: integrations
+Repository: conform5-cx-task-integrations-rave-audit-puller
+Tag value: integrations
+Repository: conform5-cx-task-integrations-rave-biostat-puller
+Tag value: integrations
+Repository: conform5-cx-task-integrations-rave-iq-column
+Tag value: integrations
+Repository: conform5-cx-task-integrations-rave-query
+Tag value: integrations
+Repository: conform5-cx-task-integrations-substring-removal
+Tag value: integrations
+Repository: conform5-cx-task-integrations-text-removal
+Tag value: integrations
+Repository: conform5-cx-task-integrations-transactional-reload
+Tag value: integrations
+Repository: conform5-cx-task-integrations-unzip
+Tag value: integrations
+Repository: conform5-cx-task-integrations-xls-to-sas
+Tag value: integrations
+Repository: conform5-cx-task-integrations-xml-update
+Tag value: integrations
+Repository: conform5-cx-task-integrations-zip-files
+Tag value: integrations
+Repository: conform5-dap-api
+Tag value: dap
+Repository: conform5-dap-assets
+Tag value: dap
+Repository: conform5-dap-ui
+Tag value: dap
+Repository: conform5-data-migration
+Tag value: db
+Repository: conform5-db-pullers-project
+Tag value: None
+Repository: conform5-db-scripts
+Tag value: db
+Repository: conform5-db-verification
+Tag value: architect
+Repository: conform5-dbpullertest-api
+Tag value: None
+Repository: conform5-deployment-scripts
+Tag value: None
+Repository: conform5-dsp-ai
+Tag value: None
+Repository: conform5-dsp-api
+Tag value: dsp
+Repository: conform5-dsp-assets
+Tag value: dsp
+Repository: conform5-dsp-cli
+Tag value: dsp
+Repository: conform5-dsp-test-api
+Tag value: dsp
+Repository: conform5-dsp-ui
+Tag value: dsp
+Repository: conform5-dsp2-api
+Tag value: dsp
+Repository: conform5-dspj-api
+Tag value: architect
+Repository: conform5-dspj2-api
+Tag value: dsp
+Repository: conform5-dspjm-api
+Tag value: architect
+Repository: conform5-dspm-api
+Tag value: dsp
+Repository: conform5-dvw-api
+Tag value: batch
+Repository: conform5-ems-api
+Tag value: ems
+Repository: conform5-ems-ui
+Tag value: ems
+Repository: conform5-ems-ui-new
+Tag value: None
+Repository: conform5-ems-ui-tests
+Tag value: architect
+Repository: conform5-error-logs-aggregator
+Tag value: db
+Repository: conform5-help-ui
+Tag value: architect
+Repository: conform5-ihub-api
+Tag value: ihub
+Repository: conform5-ihub-scripts
+Tag value: ihub
+Repository: conform5-ihub-ui
+Tag value: ihub
+Repository: conform5-ihubh-api
+Tag value: ihub
+Repository: conform5-imw-api
+Tag value: None
+Repository: conform5-insights-assets
+Tag value: insights
+Repository: conform5-insights-dwh
+Tag value: architect
+Repository: conform5-insights-quicksight-migration
+Tag value: insights
+Repository: conform5-insights-ui
+Tag value: insights
+Repository: conform5-integrations-execution
+Tag value: integrations
+Repository: conform5-integrations-testing
+Tag value: integrations
+Repository: conform5-integrations-validation-rules-templates
+Tag value: integrations
+Repository: conform5-iq-api
+Tag value: iq
+Repository: conform5-iq-dynamic-widgets
+Tag value: iq
+Repository: conform5-iq-migration
+Tag value: iq
+Repository: conform5-iq-ui
+Tag value: iq
+Repository: conform5-iqa-api
+Tag value: iq
+Repository: conform5-java-release-migration-post-sqitch
+Tag value: adm
+Repository: conform5-java-release-migration-pre-sqitch
+Tag value: adm
+Repository: conform5-je-api
+Tag value: architect
+Repository: conform5-jem-api
+Tag value: jem
+Repository: conform5-jem-scripts
+Tag value: jem
+Repository: conform5-jem-ui
+Tag value: jem
+Repository: conform5-jemh-api
+Tag value: jem
+Repository: conform5-k6-scripts
+Tag value: None
+Repository: conform5-lambda-add-conform-record-id
+Tag value: None
+Repository: conform5-lambda-add-subject-columns
+Tag value: None
+Repository: conform5-lambda-ae-source-validation-conversion
+Tag value: None
+Repository: conform5-lambda-alert-engine
+Tag value: iq
+Repository: conform5-lambda-aurora-es-bridge
+Tag value: architect
+Repository: conform5-lambda-aws-to-sqs-bridge
+Tag value: architect
+Repository: conform5-lambda-batch-audit
+Tag value: batch
+Repository: conform5-lambda-batch-custom-code-validation
+Tag value: batch
+Repository: conform5-lambda-batch-data-validation-worker
+Tag value: batch
+Repository: conform5-lambda-batch-define-xml-validator
+Tag value: batch
+Repository: conform5-lambda-batch-deleter-worker
+Tag value: batch
+Repository: conform5-lambda-batch-issue-load-worker
+Tag value: batch
+Repository: conform5-lambda-batch-issues-reconciliation
+Tag value: None
+Repository: conform5-lambda-batch-issues-report-generator
+Tag value: batch
+Repository: conform5-lambda-batch-load-worker
+Tag value: batch
+Repository: conform5-lambda-batch-parsing-worker
+Tag value: batch
+Repository: conform5-lambda-batch-populate
+Tag value: None
+Repository: conform5-lambda-batch-records-trail-mapping-id-population
+Tag value: batch
+Repository: conform5-lambda-batch-sdtm-validation
+Tag value: batch
+Repository: conform5-lambda-batch-standard-merger
+Tag value: batch
+Repository: conform5-lambda-batch-transformation-orchestrator
+Tag value: None
+Repository: conform5-lambda-batch-transformation-worker
+Tag value: batch
+Repository: conform5-lambda-batch-vr-python-custom-code
+Tag value: batch
+Repository: conform5-lambda-batch-xpt-parser
+Tag value: batch
+Repository: conform5-lambda-cdl-csv-info-extraction
+Tag value: cdl
+Repository: conform5-lambda-cdl-dcm-de-identification
+Tag value: cdl
+Repository: conform5-lambda-cdl-scheduler
+Tag value: cdl
+Repository: conform5-lambda-cdl-upload-file-complete
+Tag value: cdl
+Repository: conform5-lambda-copy-any-property-items
+Tag value: None
+Repository: conform5-lambda-copy-event-types
+Tag value: None
+Repository: conform5-lambda-copy-resources
+Tag value: None
+Repository: conform5-lambda-csv-structural-validation
+Tag value: None
+Repository: conform5-lambda-csv-validation
+Tag value: None
+Repository: conform5-lambda-csv-validation-conversion
+Tag value: None
+Repository: conform5-lambda-custom-validation
+Tag value: None
+Repository: conform5-lambda-data-migration
+Tag value: architect
+Repository: conform5-lambda-dd-cleanup
+Tag value: -
+Repository: conform5-lambda-dead-letter-queues-handler
+Tag value: wf
+Repository: conform5-lambda-deidentification
+Tag value: None
+Repository: conform5-lambda-delete-confidential-columns-from-csv
+Tag value: None
+Repository: conform5-lambda-ehr-all-patients-puller
+Tag value: None
+Repository: conform5-lambda-ehr-himss-push-processing
+Tag value: wf
+Repository: conform5-lambda-empty-task-template-for-data-providers
+Tag value: wf
+Repository: conform5-lambda-esource-delta-generator
+Tag value: None
+Repository: conform5-lambda-esource-patient-upload
+Tag value: None
+Repository: conform5-lambda-esource-patient-upload-handler
+Tag value: None
+Repository: conform5-lambda-esource-queue-manager
+Tag value: None
+Repository: conform5-lambda-esource2-batch-csv-parser
+Tag value: None
+Repository: conform5-lambda-esource2-delta-generator
+Tag value: None
+Repository: conform5-lambda-events-db-saver
+Tag value: ems
+Repository: conform5-lambda-events-dlq
+Tag value: ems
+Repository: conform5-lambda-events-downtime-recovery
+Tag value: ems
+Repository: conform5-lambda-events-prioritization
+Tag value: ems
+Repository: conform5-lambda-events-routing
+Tag value: ems
+Repository: conform5-lambda-events-subscribers
+Tag value: ems
+Repository: conform5-lambda-events-validation
+Tag value: ems
+Repository: conform5-lambda-external-system-emulater
+Tag value: None
+Repository: conform5-lambda-fhir-id-retrieve
+Tag value: None
+Repository: conform5-lambda-file-incremental-calculation
+Tag value: None
+Repository: conform5-lambda-fitbithr-aggregation-handler
+Tag value: None
+Repository: conform5-lambda-general-processing-queue-handler
+Tag value: ihub
+Repository: conform5-lambda-guarantee-delivery
+Tag value: ems
+Repository: conform5-lambda-help-auth
+Tag value: architect
+Repository: conform5-lambda-help-login
+Tag value: architect
+Repository: conform5-lambda-hierarchies-validation
+Tag value: None
+Repository: conform5-lambda-hierarchy-validation
+Tag value: None
+Repository: conform5-lambda-ihub-file-upload-handler
+Tag value: ihub
+Repository: conform5-lambda-insert-ems-event-demo
+Tag value: None
+Repository: conform5-lambda-insights-admin-api
+Tag value: insights
+Repository: conform5-lambda-insights-auth
+Tag value: insights
+Repository: conform5-lambda-insights-dashboards
+Tag value: insights
+Repository: conform5-lambda-insights-embed-url
+Tag value: insights
+Repository: conform5-lambda-insights-etl
+Tag value: insights
+Repository: conform5-lambda-insights-etl-schedule
+Tag value: insights
+Repository: conform5-lambda-insights-login
+Tag value: insights
+Repository: conform5-lambda-insights-permissions
+Tag value: insights
+Repository: conform5-lambda-insights-quicksight-creator
+Tag value: insights
+Repository: conform5-lambda-insights-stream-transformation
+Tag value: insights
+Repository: conform5-lambda-integrations-api-notification
+Tag value: integrations
+Repository: conform5-lambda-integrations-check-file-header
+Tag value: integrations
+Repository: conform5-lambda-integrations-check-file-name
+Tag value: integrations
+Repository: conform5-lambda-integrations-check-hierarchy
+Tag value: integrations
+Repository: conform5-lambda-integrations-cordis
+Tag value: integrations
+Repository: conform5-lambda-integrations-datapoints-report
+Tag value: integrations
+Repository: conform5-lambda-integrations-delete-object
+Tag value: integrations
+Repository: conform5-lambda-integrations-dmw
+Tag value: integrations
+Repository: conform5-lambda-integrations-duplicates-checker
+Tag value: integrations
+Repository: conform5-lambda-integrations-ehr-check-domains-assignment
+Tag value: integrations
+Repository: conform5-lambda-integrations-ehr-ems
+Tag value: integrations
+Repository: conform5-lambda-integrations-ehr-iq
+Tag value: None
+Repository: conform5-lambda-integrations-ehr-pull-ae
+Tag value: integrations
+Repository: conform5-lambda-integrations-ehr-pull-cm
+Tag value: integrations
+Repository: conform5-lambda-integrations-ehr-pull-dm
+Tag value: integrations
+Repository: conform5-lambda-integrations-ehr-pull-lb
+Tag value: integrations
+Repository: conform5-lambda-integrations-ehr-pull-vs
+Tag value: integrations
+Repository: conform5-lambda-integrations-ehr-xml
+Tag value: None
+Repository: conform5-lambda-integrations-epro-json-csv
+Tag value: integrations
+Repository: conform5-lambda-integrations-file-reprocessing-trigger
+Tag value: integrations
+Repository: conform5-lambda-integrations-file-type-conversions
+Tag value: integrations
+Repository: conform5-lambda-integrations-inform-puller
+Tag value: integrations
+Repository: conform5-lambda-integrations-inform-worker
+Tag value: integrations
+Repository: conform5-lambda-integrations-invoker
+Tag value: integrations
+Repository: conform5-lambda-integrations-iq-cdl-data-clear
+Tag value: None
+Repository: conform5-lambda-integrations-issue-report
+Tag value: integrations
+Repository: conform5-lambda-integrations-ntt-adapter
+Tag value: integrations
+Repository: conform5-lambda-integrations-ntt-processor
+Tag value: integrations
+Repository: conform5-lambda-integrations-punishfiles
+Tag value: integrations
+Repository: conform5-lambda-integrations-rand-file-converter
+Tag value: integrations
+Repository: conform5-lambda-integrations-rave-query
+Tag value: integrations
+Repository: conform5-lambda-integrations-request-sdtm-package
+Tag value: integrations
+Repository: conform5-lambda-integrations-sas-conversion
+Tag value: integrations
+Repository: conform5-lambda-integrations-sir-processing
+Tag value: integrations
+Repository: conform5-lambda-integrations-sir-push
+Tag value: integrations
+Repository: conform5-lambda-integrations-trialmax
+Tag value: integrations
+Repository: conform5-lambda-integrations-trialmax-tf
+Tag value: integrations
+Repository: conform5-lambda-integrations-trialmax-tf2
+Tag value: integrations
+Repository: conform5-lambda-integrations-trialmax2
+Tag value: integrations
+Repository: conform5-lambda-integrations-validation-rules-templates
+Tag value: integrations
+Repository: conform5-lambda-integrations-yprime
+Tag value: integrations
+Repository: conform5-lambda-integrations-yprime-tf
+Tag value: integrations
+Repository: conform5-lambda-iq-batch-db-cleanup
+Tag value: None
+Repository: conform5-lambda-iq-overdue-open-issues-calculator
+Tag value: iq
+Repository: conform5-lambda-iq-report
+Tag value: None
+Repository: conform5-lambda-iq-snapshot
+Tag value: None
+Repository: conform5-lambda-iq-study-summaries-collector
+Tag value: iq
+Repository: conform5-lambda-jwt-authorization
+Tag value: ems
+Repository: conform5-lambda-jwt-user-authorizer
+Tag value: ems
+Repository: conform5-lambda-log-parser
+Tag value: None
+Repository: conform5-lambda-logsToElasticsearch-log4js
+Tag value: None
+Repository: conform5-lambda-make-changes-in-rave-metadata
+Tag value: None
+Repository: conform5-lambda-mdr-answer-calculation
+Tag value: wf
+Repository: conform5-lambda-mdr-crf-export
+Tag value: mdr
+Repository: conform5-lambda-mdr-export
+Tag value: mdr
+Repository: conform5-lambda-mdr-import
+Tag value: mdr
+Repository: conform5-lambda-mdr-importer
+Tag value: mdr
+Repository: conform5-lambda-mdr-mt-export
+Tag value: mdr
+Repository: conform5-lambda-mdr-mt-import
+Tag value: mdr
+Repository: conform5-lambda-mdr-sas-import
+Tag value: mdr
+Repository: conform5-lambda-move-file-to-source
+Tag value: wf
+Repository: conform5-lambda-multipart-file-upload
+Tag value: architect
+Repository: conform5-lambda-noc-pull
+Tag value: architect
+Repository: conform5-lambda-noc-push
+Tag value: architect
+Repository: conform5-lambda-noc-settings
+Tag value: architect
+Repository: conform5-lambda-notification
+Tag value: adm
+Repository: conform5-lambda-odm-parser-wrapper
+Tag value: None
+Repository: conform5-lambda-patient-aggregator
+Tag value: None
+Repository: conform5-lambda-pfizer-subscription
+Tag value: None
+Repository: conform5-lambda-pinger
+Tag value: wf
+Repository: conform5-lambda-pull-request-lambda
+Tag value: None
+Repository: conform5-lambda-push-queue-handler
+Tag value: ihub
+Repository: conform5-lambda-randomization-service
+Tag value: None
+Repository: conform5-lambda-rave-als
+Tag value: mdr
+Repository: conform5-lambda-rave-odm-puller
+Tag value: None
+Repository: conform5-lambda-rds-slowlog-to-elasticsearch
+Tag value: None
+Repository: conform5-lambda-redis-key-cleaner
+Tag value: adm
+Repository: conform5-lambda-s3-reupload
+Tag value: cdl
+Repository: conform5-lambda-sas-routing
+Tag value: architect
+Repository: conform5-lambda-search-index
+Tag value: cdl
+Repository: conform5-lambda-simple-interceptor
+Tag value: None
+Repository: conform5-lambda-store-to-destination
+Tag value: None
+Repository: conform5-lambda-structural-changes
+Tag value: None
+Repository: conform5-lambda-structural-validation
+Tag value: None
+Repository: conform5-lambda-success-copy-handler
+Tag value: None
+Repository: conform5-lambda-test-pr-validation
+Tag value: cloud
+Repository: conform5-lambda-unique-rid-and-action-migration-s2
+Tag value: None
+Repository: conform5-lambda-uploaded-files-queue-handler
+Tag value: ihub
+Repository: conform5-lambda-user-audit-etl
+Tag value: architect
+Repository: conform5-lambda-validate-metadata
+Tag value: None
+Repository: conform5-lambda-wf-drivers-execution
+Tag value: None
+Repository: conform5-lambda-wf-file-processing
+Tag value: None
+Repository: conform5-login-api
+Tag value: login
+Repository: conform5-login-ui
+Tag value: login
+Repository: conform5-logs-processing
+Tag value: None
+Repository: conform5-mdr-57-rules-templates-migration
+Tag value: mdr
+Repository: conform5-mdr-api
+Tag value: mdr
+Repository: conform5-mdr-poc
+Tag value: None
+Repository: conform5-mdr-recover-issue-types
+Tag value: mdr
+Repository: conform5-mdr-rules-templates-migration
+Tag value: mdr
+Repository: conform5-mdr-test-automation
+Tag value: architect
+Repository: conform5-mdr-ui
+Tag value: mdr
+Repository: conform5-mdr-worker-api
+Tag value: None
+Repository: conform5-mdrj-api
+Tag value: mdr
+Repository: conform5-mdrm-api
+Tag value: mdr
+Repository: conform5-mrt-api
+Tag value: mdr
+Repository: conform5-noc-ui
+Tag value: architect
+Repository: conform5-online-help-ui
+Tag value: architect
+Repository: conform5-pipeline-script-copy
+Tag value: None
+Repository: conform5-platform
+Tag value: common
+Repository: conform5-pm-api
+Tag value: pm
+Repository: conform5-pm-ui
+Tag value: pm
+Repository: conform5-pm-ui-tests
+Tag value: architect
+Repository: conform5-python-runner-angular
+Tag value: architect
+Repository: conform5-python-runner-node
+Tag value: architect
+Repository: conform5-qa-api-tests
+Tag value: None
+Repository: conform5-rules-api
+Tag value: mdr
+Repository: conform5-sas-agent
+Tag value: architect
+Repository: conform5-sce-ui
+Tag value: cdl
+Repository: conform5-sir-api
+Tag value: sir
+Repository: conform5-sir-ui
+Tag value: sir
+Repository: conform5-slow-logs-aggregator
+Tag value: db
+Repository: conform5-sqs-orchestrator
+Tag value: None
+Repository: conform5-test1-api
+Tag value: None
+Repository: conform5-test2-api
+Tag value: None
+Repository: conform5-tlf-api
+Tag value: tlf
+Repository: conform5-tlf-test-api
+Tag value: tlf
+Repository: conform5-tlf-ui
+Tag value: tlf
+Repository: conform5-tlf2-api
+Tag value: tlf
+Repository: conform5-trigger-database-puller
+Tag value: None
+Repository: conform5-ui-automation
+Tag value: qa
+Repository: conform5-unique-rid-and-action-migration-s1
+Tag value: None
+Repository: conform5-user-audit
+Tag value: architect
+Repository: conform5-wf-api
+Tag value: wf
+Repository: conform5-wf-drivers
+Tag value: wf
+Repository: conform5-wf-fix-archived-workflows
+Tag value: wf
+Repository: conform5-wf-subtasks-migration
+Tag value: wf
+Repository: conform5-wf-ui
+Tag value: wf
+Repository: conform5-wfhandler-api
+Tag value: wf
+Repository: dmytro-khlevniak-test-repo
+Tag value: None
+Repository: pr-validation-testing
+Tag value: anya
+Repository: qa-automation
+Tag value: None
+Repository: study-builder
+Tag value: None
+
